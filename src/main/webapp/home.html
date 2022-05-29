@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>ImageGallery</title>
+<link rel="stylesheet" type="text/css" media="all" href="css/style.css" />
+<script src="javascript/gallery.js" charset="utf-8" defer></script>
+<script src="javascript/async.js" charset="utf-8" defer></script>
+</head>
+
+<body>
+	<div class="button-header">
+		<a id="logout" class="align-right" href="LogoutUser">Logout</a>
+	</div>
+	<h1>Welcome, <span id="welcomeUsername">user</span></h1>
+	<p>Browse the albums here. Click on any album to see more details.</p>
+	<div class="row">
+		<div id="ownAlbumsContainer" class="column margin-1">
+			<h2>Your albums</h2>
+			<table>
+				<thead>
+					<tr>
+						<th>Title</th>
+						<th>Created by</th>
+						<th>Creation date</th>
+					</tr>
+				</thead>
+				<tbody id="ownAlbums"></tbody>
+			</table>
+			<p id="ownAlbumsAlert"></p>
+			<div>
+				<h4>Create a new album</h4>
+				<form action="CreateAlbum" method="POST">
+					<p>
+						Album title: <input type="text" id="albumTitle" name="albumTitle" />
+					</p>
+					<input type="hidden" name="userId" th:value="${session.userId}" />
+					<input type="submit" value="Confirm" />
+				</form>
+			</div>
+		</div>
+		<div id="otherAlbumsContainer" class="column margin-1">
+			<h2>Other users' albums</h2>
+			<table>
+				<thead>
+					<tr>
+						<th>Title</th>
+						<th>Created by</th>
+						<th>Creation date</th>
+					</tr>
+				</thead>
+				<tbody id="otherAlbums"></tbody>
+			</table>
+		</div>
+	</div>
+</body>
+</html>
