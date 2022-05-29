@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Login | ImageGallery</title>
+<link rel="stylesheet" type="text/css" media="all" href="css/style.css" />
+<script src="javascript/login.js" charset="utf-8" defer></script>
+<script src="javascript/async.js" charset="utf-8" defer></script>
+</head>
+
+<body>
+	<h1>Welcome to ImageGallery!</h1>
+	<p>Please log in to your account, or register if you do not have one.</p>
+	
+	<div class="row">
+		<div class="column margin-1">
+			<h2>Log in</h2>
+			<form id="loginForm" action="#">
+				<p>
+					Username: <input type="text" id="loginUsername" name="username" required />
+				</p>
+				<p>
+					Password: <input type="password" id="loginPassword" name="password" required />
+				</p>
+				<input id="loginButton" type="button" value="Log In" />
+				<p id="loginErrorMsg" class="error"></p>
+			</form>
+		</div>
+		
+		<div class="column margin-1">
+			<h2>Register</h2>
+			<form id="registerForm" action="#">
+				<p>
+					Email: <input type="email" id="registerEmail" name="email" required />
+				</p>
+				<p>
+					Username: <input type="text" id="registerUsername" name="username" required />
+				</p>
+				<p>
+					Password: <input type="password" id="registerPassword" name="password" required />
+				</p>
+				<p>
+					Repeat password: <input type="password" id="registerRepeatPassword" name="repeatPassword" required />
+				</p>
+				<input id="registerButton" type="button" value="Register" />
+				<div id="registerErrorMsg" class="error"></div>
+			</form>
+		</div>
+	</div>
+</body>
+</html>
