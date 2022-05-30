@@ -33,7 +33,6 @@
 		};
 		
 		this.hide = function() {
-			debugger;
 			this.container.style.visibility = 'hidden';
 			this.container.classList.remove('error');
 		};
@@ -143,12 +142,16 @@
 					
 					if (x.status == 200) {
 						var album = JSON.parse(message);
+						debugger;
 						
 						self.gridContainer.style.visibility = 'visible';
-						
-						self.titleContainer.textContent = album.title;
-						self.creatorContainer.textContent = album.ownerUsename;
-						self.dateContainer.textContent = album.formattedDate;
+												
+						self.titleContainer.innerHTML = '';
+						self.creatorContainer.innerHTML = '';						
+						self.dateContainer.innerHTML = '';
+						self.titleContainer.appendChild(document.createTextNode(album.title));
+						self.creatorContainer.appendChild(document.createTextNode(album.ownerUsername));
+						self.dateContainer.appendChild(document.createTextNode(album.formattedDate));
 						
 						if (album.images.length == 0) {
 							self.alertContainer.display('No images yet!');
@@ -175,11 +178,11 @@
 				gridItem.classList.add('grid-item');
 				
 				var imageContainer = document.createElement('div');
-				imageContainer.classList.add('image-container-div');
+				imageContainer.classList.add('image-container-grid');
 				
 				var anchor = document.createElement('a');
 				var img = document.createElement('img');
-				img.src = image.filePath;
+				img.src = '/ImageGallery-RIA' + image.filePath;
 				img.classList.add('image');
 				anchor.appendChild(img);
 				anchor.href = '#';
