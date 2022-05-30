@@ -1,4 +1,4 @@
-function makeCall(method, url, formElement, callback, reset = true) {
+function sendAsync(method, url, formElement, callback, reset = true) {
   var req = new XMLHttpRequest();
   req.onreadystatechange = function() {
     callback(req)

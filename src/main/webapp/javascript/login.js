@@ -6,7 +6,7 @@
   document.getElementById('loginButton').addEventListener('click', e => {
     var form = document.getElementById('loginForm');
     if (form.checkValidity()) {
-      makeCall('POST', 'AuthenticateUser', form, function(x) {
+      sendAsync('POST', 'AuthenticateUser', form, function(x) {
         if (x.readyState == XMLHttpRequest.DONE) {
           var message = x.responseText;
           switch (x.status) {
@@ -45,7 +45,7 @@
   document.getElementById('registerButton').addEventListener('click', e => {
     var form = document.getElementById('registerForm');
     if (form.checkValidity()) {
-      makeCall('POST', 'RegisterUser', form, function(x) {
+      sendAsync('POST', 'RegisterUser', form, function(x) {
         if (x.readyState == XMLHttpRequest.DONE) {
           var message = x.responseText;
           switch (x.status) {

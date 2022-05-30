@@ -12,9 +12,11 @@
 	<div class="button-header">
 		<a id="logout" class="align-right" href="LogoutUser">Logout</a>
 	</div>
-	<h1>Welcome, <span id="welcomeUsername">user</span></h1>
+	
+	<h1>Welcome, <span id="welcomeUsername"></span></h1>
 	<p>Browse the albums here. Click on any album to see more details.</p>
-	<div class="row">
+	
+	<div id="albums" class="row">
 		<div id="ownAlbumsContainer" class="column margin-1">
 			<h2>Your albums</h2>
 			<table>
@@ -51,6 +53,91 @@
 				</thead>
 				<tbody id="otherAlbums"></tbody>
 			</table>
+		</div>
+	</div>
+
+	<div id="albumDetails">
+		<h1 id="albumTitle"></h1>
+		<p>
+			<span>by </span>
+			<span id="albumCreator" class="bold-text"></span>
+			<span> - created </span>
+			<span id="albumDate"></span>
+		</p>
+		<p>
+			<a id="addImages" href="#">Add images</a>
+		</p>
+	
+		<div id="albumImagesContainer">
+			<p id="albumImagesAlert"></p>
+			<div id="albumImagesGrid" class="grid-container single-row"></div>
+		</div>
+		
+		<div class="button-container">
+			<a id="showPrev" class="align-left" href="#">Show previous</a>
+			<a id="showNext" class="align-right" href="#">Show next</a>
+		</div>
+	</div>
+	
+	<div id="selectedImage" class="row">
+		<div class="column margin-1 image-container-flex">
+			<img id="fullSizeImage" class="image" />
+		</div>
+		
+		<div class="column margin-1">
+			<h2 id="selImgTitle"></h2>
+			<p id="selImgDesc"></p>
+			<p id="selImgDate" class="light-text text-90"></p>
+			
+			<!-- <div class="row">
+				<div class="column">
+					<p id="selImgDate" class="light-text text-90"></p>
+				</div>
+				
+				<div class="column" th:if="${otherAlbums != null && album.ownerId == session.userId}">
+					<form th:action="@{/AddToAlbum}" method="POST">
+						<p>
+							<span class="light-text text-90">Add image to: </span>
+							<select id="targetAlbum" name="targetAlbum">
+								<option value="-1" selected disabled>select an album...</option>
+								<option th:each="album : ${otherAlbums}" th:text="${album.title}" th:value="${album.id}"></option>
+							</select>
+						</p>
+						<input type="hidden" name="redirectToAlbum" th:value="${true}" />
+						<input type="hidden" name="userId" th:value="${session.userId}" />
+						<input type="hidden" name="originAlbumId" th:value="${album.id}" />
+						<input type="hidden" name="page" th:value="${page}" />
+						<input type="hidden" name="selectedImageId" th:value="${selectedImage.id}" />
+						<input type="submit" value="Confirm" />
+					</form>
+				</div>
+			</div> -->
+			
+			<h3>Comments</h3>
+			<p id="commentsAlert"></p>
+			
+			<div id="commentsContainer" class="comment" th:if="${comments.size() > 0}" th:each="comment : ${comments}">
+				<p class="comment-body text-90" th:text="${comment.body}"></p>
+				<p class="comment-details text-75">
+					<span class="light-text">by </span>
+					<span class="bold-text" th:text="${comment.publisherUsername}">User</span>
+					<span class="light-text"> - </span>
+					<span class="light-text" th:text="${comment.formattedDate}">10/07/2022</span>
+				</p>
+			</div>
+			
+			<form id="commentForm" action="#">
+				<p>Add your comment here!</p>
+				<p>
+					<textarea id="commentBody" class="textarea text-90" name="commentBody"></textarea>
+				</p>
+				<input type="hidden" name="userId" th:value="${session.userId}" />
+				<input type="hidden" name="albumId" th:value="${album.id}" />
+				<input type="hidden" name="page" th:value="${page}" />
+				<input type="hidden" name="selectedImageId" th:value="${selectedImage.id}" />
+				<input type="submit" value="Publish" />
+				<p class="error" th:text="${commentErrorMessage}"></p>
+			</form>
 		</div>
 	</div>
 </body>
