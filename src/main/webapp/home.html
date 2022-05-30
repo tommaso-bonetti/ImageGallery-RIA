@@ -34,7 +34,7 @@
 				<h4>Create a new album</h4>
 				<form action="CreateAlbum" method="POST">
 					<p>
-						Album title: <input type="text" id="albumTitle" name="albumTitle" />
+						Album title: <input type="text" id="newAlbumTitle" name="albumTitle" />
 					</p>
 					<input type="hidden" name="userId" th:value="${session.userId}" />
 					<input type="submit" value="Confirm" />

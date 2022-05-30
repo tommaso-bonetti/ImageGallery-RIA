@@ -116,6 +116,7 @@
 		this.showPrevious.addEventListener('click', e => {
 			if (this.page > 0) {
 				this.page--;
+				this.showPrevious.style.visibility = 'visible';
 				if (this.page == 0)
 					e.target.style.visibility = 'hidden';
 
@@ -126,6 +127,7 @@
 		this.showNext.addEventListener('click', e => {
 			if (this.images.length > this.page * 5) {
 				this.page++;
+				this.showPrevious.style.visibility = 'visible';
 				if (this.images.length <= this.page * 5)
 					e.target.style.visibility = 'hidden';
 
@@ -142,13 +144,13 @@
 					
 					if (x.status == 200) {
 						var album = JSON.parse(message);
-						debugger;
 						
 						self.gridContainer.style.visibility = 'visible';
 												
 						self.titleContainer.innerHTML = '';
 						self.creatorContainer.innerHTML = '';						
 						self.dateContainer.innerHTML = '';
+
 						self.titleContainer.appendChild(document.createTextNode(album.title));
 						self.creatorContainer.appendChild(document.createTextNode(album.ownerUsername));
 						self.dateContainer.appendChild(document.createTextNode(album.formattedDate));
@@ -194,6 +196,7 @@
 				
 				var imageTitle = document.createElement('p');
 				imageTitle.classList.add('image-title');
+				imageTitle.appendChild(document.createTextNode(image.title))
 				gridItem.appendChild(imageTitle);
 				
 				this.grid.appendChild(gridItem);
