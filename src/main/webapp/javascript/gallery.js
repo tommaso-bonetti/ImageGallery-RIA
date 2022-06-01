@@ -24,7 +24,7 @@
 		
 		this.display = message => {
 			this.container.textContent = message;
-			this.container.style.visibility = 'visible';
+			this.container.style.display = 'block';
 		};
 		
 		this.displayError = message => {
@@ -33,7 +33,7 @@
 		};
 		
 		this.hide = () => {
-			this.container.style.visibility = 'hidden';
+			this.container.style.display = 'none';
 			this.container.classList.remove('error');
 		};
 	}
@@ -109,6 +109,7 @@
 		this.showNext = document.getElementById('showNext');
 		this.addImages = document.getElementById('addImages');
 		
+		this.albumId = null;
 		this.images = null;
 		this.page = null;
 		
@@ -156,6 +157,7 @@
 						else
 							self.addImages.setAttribute('albumId', album.id);
 
+						self.albumId = album.id;
 						self.titleContainer.appendChild(document.createTextNode(album.title));
 						self.creatorContainer.appendChild(document.createTextNode(album.ownerUsername));
 						self.dateContainer.appendChild(document.createTextNode(album.formattedDate));
@@ -193,7 +195,7 @@
 				anchor.appendChild(img);
 				anchor.href = '#albumDetails';
 				anchor.setAttribute('imageId', image.id);
-				anchor.addEventListener('click', e => imageDetails.load(e.target.getAttribute('imageId')), false);
+				anchor.addEventListener('click', e => imageDetails.load(e.target.closest('a').getAttribute('imageId'), this.albumId), false);
 				
 				imageContainer.appendChild(anchor);
 				gridItem.appendChild(imageContainer);
@@ -220,6 +222,7 @@
 			this.showNext.style.visibility = 'hidden';
 			this.addImages.removeAttribute('albumId');
 			
+			this.albumId = null;
 			this.images = null;
 			this.page = null;
 		};
@@ -353,7 +356,79 @@
 		};
 	};
 	
-	function ImageDetails() {};
+	function ImageDetails(_modal, _modalContent, _commentList, _albumSelect, _alertContainer) {
+		this.modal = _modal;
+		this.modalContent = _modalContent;
+		this.commentList = new CommentList(_commentList);
+		this.albumSelect = new AlbumSelect(_albumSelect);
+		this.alertContainer = new AlertContainer(_alertContainer);
+		
+		this.imageContainer = document.getElementById('fullSizeImage');
+		this.titleContainer = document.getElementById('selImgTitle');
+		this.descContainer = document.getElementById('selImgDesc');
+		this.dateContainer = document.getElementById('selImgDate');
+		this.closeButton = document.getElementById('closeModal');
+		
+		this.currentAlbum = null;
+		this.image = null;
+		
+		this.modal.style.display = 'none';
+		
+		this.closeButton.addEventListener('click', e => this.modal.style.display = 'none');
+		
+		this.load = function (imageId, albumId) {
+			this.currentAlbum = albumId;
+			var self = this;
+			
+			sendAsync('GET', 'FetchImage?imageId=' + imageId + "&albumId=" + albumId, null, function (x) {				
+				if (x.readyState == XMLHttpRequest.DONE) {
+					self.clear();
+					self.modal.style.display = 'block';
+					
+					var message = x.responseText;
+					
+					if (x.status == 200) {
+						self.image = JSON.parse(message);
+						self.populate();
+					} else {
+						self.imageContainer.style.display = 'none';
+						self.alertContainer.displayError(message);
+					}
+				}
+			});
+		};
+		
+		this.populate = function () {
+			// this.commentList.load();
+			// this.albumSelect.load();
+			
+			this.imageContainer.style.display = 'block';
+			this.imageContainer.src = '/ImageGallery-RIA' + this.image.filePath;
+			
+			this.titleContainer.appendChild(document.createTextNode(this.image.title));
+			this.descContainer.appendChild(document.createTextNode(this.image.description));
+			this.dateContainer.appendChild(document.createTextNode('Uploaded ' + this.image.formattedDate));
+		};
+		
+		this.clear = function () {
+			this.modal.style.display = 'none';
+			this.imageContainer.src = '';
+			
+			this.titleContainer.innerHTML = '';
+			this.descContainer.innerHTML = '';
+			this.dateContainer.innerHTML = '';
+		
+			this.currentAlbum = null;
+			this.image = null;
+			
+			// this.commentList.clear();
+			// this.albumSelect.clear();
+		};
+	};
+	
+	function CommentList(_listContainer) {};
+	
+	function AlbumSelect(_albumSelect) {};
 	
 	function PageOrchestrator() {
 		this.start = function() {
@@ -394,7 +469,13 @@
 					document.getElementById('imagesToAddAlert')
 			);
 			
-			//imageDetails = new ImageDetails();
+			imageDetails = new ImageDetails(
+					document.getElementById('selectedImageWrapper'),
+					document.getElementById('selectedImage'),
+					document.getElementById('commentsContainer'),
+					document.getElementById('addToAlbumForm'),
+					document.getElementById('selImgAlert')
+			);
 		};
 		
 		this.refresh = function () {

@@ -149,3 +149,37 @@ textarea {
 .error {
 	color: red;
 }
+
+.modal {
+	display: none;
+	position: fixed;
+	z-index: 1;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	background-color: #00000080;
+}
+
+.modal-content {
+	margin: 5vh auto;
+	padding: 0.75vh 1.5vw;
+	width: 90%;
+	border-radius: 1vw;
+	background-color: #FFFFFF;
+}
+
+.close-button {
+	color: #404040;
+	font-size: 32px;
+	font-weight: 600;
+}
+
+.close-button:hover {
+	cursor: pointer;
+}
+
+.justify-end {
+	justify-content: flex-end;
+}
