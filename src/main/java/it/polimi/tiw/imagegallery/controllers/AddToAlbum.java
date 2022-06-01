@@ -3,7 +3,6 @@ package it.polimi.tiw.imagegallery.controllers;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -12,18 +11,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import it.polimi.tiw.imagegallery.beans.User;
-import it.polimi.tiw.imagegallery.dao.UserDAO;
+import it.polimi.tiw.imagegallery.dao.AlbumImagesDAO;
 import it.polimi.tiw.imagegallery.utils.ConnectionManager;
 
-@WebServlet("/AuthenticateUser")
+@WebServlet("/AddToAlbum")
 @MultipartConfig
-public class AuthenticateUser extends HttpServlet {
+public class AddToAlbum extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connection = null;
-
-	public AuthenticateUser() {
+	
+	public AddToAlbum() {
 		super();
 	}
 	
@@ -32,34 +29,44 @@ public class AuthenticateUser extends HttpServlet {
 		ServletContext servletContext = getServletContext();
 		connection = ConnectionManager.getConnection(servletContext);
 	}
-
+	
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String username = null;
-		String password = null;
+		String targetImage = request.getParameter("targetImage");
+		String targetAlbum = request.getParameter("targetAlbum");
 		
 		try {
-			username = StringEscapeUtils.escapeJava(request.getParameter("username"));
-			password = StringEscapeUtils.escapeJava(request.getParameter("password"));
-			if (username == null || username.isEmpty())
-				throw new Exception("Missing or empty username value");
-			if (password == null || password.isEmpty())
-				throw new Exception("Missing or empty password value");
+			if (targetImage == null || targetImage.isEmpty())
+				throw new Exception("Missing target image");
+			if (targetAlbum == null || targetAlbum.isEmpty())
+				throw new Exception("Missing target album");
 		} catch (Exception e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().println(e.getMessage());
 			return;
 		}
 		
-		UserDAO userDAO = new UserDAO(connection);
-		User user = null;
+		int targetImageId;
+		int targetAlbumId;
 		
 		try {
-			user = userDAO.checkCredentials(username, password);
+			targetImageId = Integer.parseInt(targetImage);
+			targetAlbumId = Integer.parseInt(targetAlbum);
+		} catch (NumberFormatException e) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().println("Invalid image or album selection");
+			return;
+		}
+		
+		AlbumImagesDAO albumImagesDAO = new AlbumImagesDAO(connection);
+		int userId = (int) request.getSession().getAttribute("userId");
+		
+		try {
+			albumImagesDAO.addImageToAlbum(userId, targetImageId, targetAlbumId);
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println("Unable to check user credentials");
+			response.getWriter().println("Unable to add image to album");
 			return;
 		} catch (Exception e) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -67,11 +74,8 @@ public class AuthenticateUser extends HttpServlet {
 			return;
 		}
 		
-		request.getSession().setAttribute("userId", user.getId());
 		response.setStatus(HttpServletResponse.SC_OK);
-		response.setContentType("application/json");
-		response.setCharacterEncoding("UTF-8");
-		response.getWriter().print(user.getUsername());
+		response.getWriter().print(targetAlbumId);
 	}
 
 	@Override

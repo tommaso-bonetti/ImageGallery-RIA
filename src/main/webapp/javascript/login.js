@@ -14,15 +14,13 @@
           		sessionStorage.setItem('username', message);
               window.location.href = 'home.html';
               break;
-            case 400: // bad request
-              document.getElementById('loginErrorMsg').textContent = message;
-              break;
-            case 401: // unauthorized
-              document.getElementById('loginErrorMsg').textContent = message;
-              break;
+            case 400:	// bad request
+            case 401:	// unauthorized
             case 500: // internal server error
-          		document.getElementById('loginErrorMsg').textContent = message;
+              document.getElementById('loginErrorMsg').textContent = message;
               break;
+            default:
+            	document.getElementById('loginErrorMsg').textContent = 'Unexpected error';
           }
         }
       });
@@ -57,12 +55,11 @@
             	var errors = JSON.parse(message);
               update(errors);
               break;
-            case 409: // conflict
+            case 409, 500: // conflict, internal server error
               update([message]);
               break;
-            case 500: // internal server error
-          		update([message]);
-              break;
+            default:
+            	update(['Unexpected error']);
           }
         }
       });
