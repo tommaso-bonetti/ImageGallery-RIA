@@ -69,7 +69,7 @@ public class AuthenticateUser extends HttpServlet {
 		
 		request.getSession().setAttribute("userId", user.getId());
 		response.setStatus(HttpServletResponse.SC_OK);
-		response.setContentType("application/json");
+		response.setContentType("text/plain");
 		response.setCharacterEncoding("UTF-8");
 		response.getWriter().print(user.getUsername());
 	}

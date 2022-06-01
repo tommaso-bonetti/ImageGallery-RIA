@@ -46,7 +46,7 @@ public class FetchAlbum extends HttpServlet {
 			albumId = Integer.parseInt(albumIdString);
 		} catch (NumberFormatException e) {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			response.getWriter().println("Invalid album or page id");
+			response.getWriter().println("Invalid album id");
 			return;
 		}
 		
