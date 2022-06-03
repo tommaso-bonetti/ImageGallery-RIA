@@ -399,7 +399,7 @@
 		};
 		
 		this.populate = function () {
-			// this.commentList.load();
+			this.commentList.load(this.image.id);
 			// this.albumSelect.load();
 			
 			this.imageContainer.style.display = 'block';
@@ -421,12 +421,87 @@
 			this.currentAlbum = null;
 			this.image = null;
 			
-			// this.commentList.clear();
+			this.commentList.clear();
 			// this.albumSelect.clear();
 		};
 	};
 	
-	function CommentList(_listContainer) {};
+	function CommentList(_commentList) {
+		this.commentList = _commentList;
+		this.wrapper = document.getElementById('commentsWrapper');
+		this.alertContainer = new AlertContainer(document.getElementById('commentsAlert'));
+		
+		this.comments = null;
+		
+		this.commentList.style.display = 'none';
+		
+		this.load = function (imageId) {
+			var self = this;
+			
+			sendAsync('GET', 'FetchComments?imageId=' + imageId, null, function (x) {
+				if (x.readyState == XMLHttpRequest.DONE) {
+					self.clear();
+					self.commentList.style.display = 'block';
+					
+					var message = x.responseText;
+					
+					if (x.status == 200) {
+						self.comments = JSON.parse(message);
+						self.populate();
+					} else {
+						self.alertContainer.displayError(message);
+					}
+				}
+			});
+		};
+		
+		this.populate = function () {
+			this.wrapper.innerHTML = '';
+			
+			if (this.comments.length == 0) this.alertContainer.display('No comments yet.');
+			else {
+				this.comments.forEach(comment => {
+					var commentBox = document.createElement('div');
+					commentBox.classList.add('comment');
+					
+					var body = document.createElement('p');
+					body.classList.add('comment-body', 'text-90');
+					body.appendChild(document.createTextNode(comment.body));
+					commentBox.appendChild(body);
+					
+					var details = document.createElement('p');
+					details.classList.add('comment-details', 'text-75');
+					
+					var by = document.createElement('span');
+					by.classList.add('light-text');
+					by.appendChild(document.createTextNode('by '));
+					details.appendChild(by);
+					
+					var publisher = document.createElement('span');
+					publisher.classList.add('bold-text');
+					publisher.appendChild(document.createTextNode(comment.publisherUsername));
+					details.appendChild(publisher);
+					
+					var date = document.createElement('span');
+					date.classList.add('light-text');
+					date.appendChild(document.createTextNode(' - ' + comment.formattedDate));
+					details.appendChild(date);
+					
+					commentBox.appendChild(details);
+					
+					this.wrapper.appendChild(commentBox);
+				});
+			}
+		};
+		
+		this.clear = function () {
+			this.commentList.style.display = 'hidden';
+			this.wrapper.innerHTML = '';
+			this.alertContainer.hide();
+			
+			this.comments = null;
+		};
+	};
 	
 	function AlbumSelect(_albumSelect) {};
 	
@@ -472,7 +547,7 @@
 			imageDetails = new ImageDetails(
 					document.getElementById('selectedImageWrapper'),
 					document.getElementById('selectedImage'),
-					document.getElementById('commentsContainer'),
+					document.getElementById('commentList'),
 					document.getElementById('addToAlbumForm'),
 					document.getElementById('selImgAlert')
 			);
