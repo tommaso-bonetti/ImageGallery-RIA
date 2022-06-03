@@ -134,31 +134,19 @@
 						<h3>Comments</h3>
 						<p id="commentsAlert"></p>
 						
-						<div id="commentsWrapper">
-							<div class="comment" th:if="${comments.size() > 0}" th:each="comment : ${comments}">
-								<p class="comment-body text-90" th:text="${comment.body}"></p>
-								<p class="comment-details text-75">
-									<span class="light-text">by </span>
-									<span class="bold-text" th:text="${comment.publisherUsername}">User</span>
-									<span class="light-text"> - </span>
-									<span class="light-text" th:text="${comment.formattedDate}">10/07/2022</span>
-								</p>
-							</div>
-						</div>
+						<div id="commentsWrapper"></div>
+						
+						<form id="commentForm" action="#">
+							<p>Add your comment here!</p>
+							<p>
+								<textarea id="commentBody" class="textarea text-90" name="commentBody"></textarea>
+							</p>
+							<input id="commentUsername" type="hidden" name="username" />
+							<input id="commentImage" type="hidden" name="imageId" />
+							<input id="publishComment" type="button" value="Publish" />
+							<p id="commentFormError" class="error"></p>
+						</form>
 					</div>
-					
-					<form id="commentForm" action="#">
-						<p>Add your comment here!</p>
-						<p>
-							<textarea id="commentBody" class="textarea text-90" name="commentBody"></textarea>
-						</p>
-						<input type="hidden" name="userId" th:value="${session.userId}" />
-						<input type="hidden" name="albumId" th:value="${album.id}" />
-						<input type="hidden" name="page" th:value="${page}" />
-						<input type="hidden" name="selectedImageId" th:value="${selectedImage.id}" />
-						<input type="submit" value="Publish" />
-						<p class="error" th:text="${commentErrorMessage}"></p>
-					</form>
 				</div>
 			</div>
 		</div>

@@ -430,12 +430,15 @@
 		this.commentList = _commentList;
 		this.wrapper = document.getElementById('commentsWrapper');
 		this.alertContainer = new AlertContainer(document.getElementById('commentsAlert'));
+		this.form = document.getElementById('commentForm');
 		
+		this.imageId = null;
 		this.comments = null;
 		
 		this.commentList.style.display = 'none';
 		
 		this.load = function (imageId) {
+			this.imageId = imageId;
 			var self = this;
 			
 			sendAsync('GET', 'FetchComments?imageId=' + imageId, null, function (x) {
@@ -457,6 +460,32 @@
 		
 		this.populate = function () {
 			this.wrapper.innerHTML = '';
+			
+			document.getElementById('commentUsername').value = sessionStorage.getItem('username');
+			document.getElementById('commentImage').value = this.imageId;
+			document.getElementById('publishComment').addEventListener('click', e => {
+				var self = this;
+				var errorMsg = document.getElementById('commentFormError');
+				errorMsg.innerHTML = '';
+				debugger
+				sendAsync('POST', 'PublishComment', this.form, function (x) {
+					if (x.readyState == XMLHttpRequest.DONE) {
+						var message = x.responseText;
+						switch (x.status) {
+							case 200:
+								self.load(parseInt(message));
+								break;
+							case 400:
+							case 401:
+							case 500:
+								errorMsg.appendChild(document.createTextNode(x.responseText));
+								break;
+							default:
+								errorMsg.appendChild(document.createTextNode('Unexpected error'));
+						}
+					}
+				});
+			});
 			
 			if (this.comments.length == 0) this.alertContainer.display('No comments yet.');
 			else {
