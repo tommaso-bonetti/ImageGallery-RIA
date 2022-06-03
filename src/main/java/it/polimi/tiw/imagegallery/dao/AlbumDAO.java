@@ -85,7 +85,7 @@ public class AlbumDAO {
 		}
 	}
 	
-	public void createAlbum(int userId, String albumTitle) throws SQLException {
+	public int createAlbum(int userId, String albumTitle) throws SQLException {
 		String query = "INSERT INTO Album (title, creationDate, ownerId) VALUES (?, ?, ?)";
 		try (PreparedStatement prepStatement = connection.prepareStatement(query)) {
 			prepStatement.setString(1, albumTitle);
@@ -93,6 +93,8 @@ public class AlbumDAO {
 			prepStatement.setInt(3, userId);
 			prepStatement.executeUpdate();
 		}
+		
+		return albumIdByTitle(albumTitle);
 	}
 
 	public List<Album> fetchOtherAlbumsByUser(int ownerId, int albumId) throws SQLException {
@@ -117,5 +119,17 @@ public class AlbumDAO {
 		}
 		
 		return albums;
+	}
+	
+	private int albumIdByTitle(String title) throws SQLException {
+		String query = "SELECT albumId FROM Album WHERE title = ?";
+		try (PreparedStatement prepStatement = connection.prepareStatement(query)) {
+			prepStatement.setString(1, title);
+			try (ResultSet res = prepStatement.executeQuery()) {
+				if (!res.isBeforeFirst()) return -1;
+				res.next();
+				return res.getInt("albumId");
+			}
+		}
 	}
 }

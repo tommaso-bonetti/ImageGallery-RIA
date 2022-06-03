@@ -107,6 +107,7 @@
 		this.alertContainer = new AlertContainer(_alertContainer);
 		
 		this.titleContainer = document.getElementById('albumTitle');
+		this.creationDataContainer = document.getElementById('creationData');
 		this.creatorContainer = document.getElementById('albumCreator');
 		this.dateContainer = document.getElementById('albumDate');
 		this.showPrevious = document.getElementById('showPrev');
@@ -165,6 +166,7 @@
 						self.titleContainer.appendChild(document.createTextNode(album.title));
 						self.creatorContainer.appendChild(document.createTextNode(album.ownerUsername));
 						self.dateContainer.appendChild(document.createTextNode(album.formattedDate));
+						self.creationDataContainer.style.display = 'block';
 						
 						if (album.images.length == 0) {
 							self.alertContainer.display('No images yet!');
@@ -222,6 +224,8 @@
 			this.creatorContainer.innerHTML = '';						
 			this.dateContainer.innerHTML = '';
 			
+			this.creationDataContainer.style.display = 'hidden';
+			
 			this.showPrevious.style.visibility = 'hidden';
 			this.showNext.style.visibility = 'hidden';
 			this.addImages.removeAttribute('albumId');
@@ -274,7 +278,7 @@
 							self.populate();
 						}
 					} else {
-						self.titleContainer.appendChild(document.createTextNode('Add images to album'))
+						self.titleContainer.appendChild(document.createTextNode('Add images to album'));
 						self.alertContainer.displayError(message);
 					}
 				}
@@ -620,6 +624,27 @@
 			document.getElementById('logout').addEventListener('click', e => {
 				sessionStorage.clear();
 				sendAsync('GET', 'Logout', null, () => window.location.href = 'login.html');
+			});
+			
+			// Initialize the album creation form
+			let createAlbumForm = document.getElementById('createAlbum');
+			let createAlbumAlert = new AlertContainer(document.getElementById('createAlbumAlert'));
+			createAlbumAlert.hide();
+			document.getElementById('createAlbumSubmit').addEventListener('click', e => {
+				document.getElementById('createAlbumUsername').value = sessionStorage.getItem('username');
+				sendAsync('POST', 'CreateAlbum', createAlbumForm, function (x) {
+					if (x.readyState == XMLHttpRequest.DONE) {
+						let message = x.responseText;
+						
+						if (x.status == 200) {
+							createAlbumAlert.display('Album created successfully!');
+							setTimeout(() => createAlbumAlert.hide(), 5000);
+							albumImages.load(parseInt(message));
+						} else {
+							createAlbumAlert.displayError(message);
+						}
+					}
+				});
 			});
 			
 			// Initialize the main page components
