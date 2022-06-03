@@ -88,7 +88,11 @@
 				anchor.href = '#albumDetails';
 				anchor.appendChild(text);
 				anchor.setAttribute('albumId', album.id);
-				anchor.addEventListener('click', e => albumImages.load(e.target.getAttribute('albumId')), false);
+				anchor.addEventListener('click', e => {
+					let albumId = e.target.getAttribute('albumId');
+					sessionStorage.setItem('currentAlbum', albumId);
+					albumImages.load(albumId);
+				}, false);
 				details.appendChild(anchor);
 				row.appendChild(details);
 				
@@ -165,8 +169,8 @@
 						if (album.images.length == 0) {
 							self.alertContainer.display('No images yet!');
 						} else {
-							self.showNext.style.visibility = 'visible';
 							self.images = album.images;
+							self.showNext.style.visibility = (self.images.length > 5) ?  'visible' : 'hidden';
 							self.page = 1;
 							self.populate();
 						}
@@ -234,11 +238,14 @@
 		this.alertContainer = new AlertContainer(_alertContainer);
 		
 		this.titleContainer = document.getElementById('imagesToAddTitle');
+		this.closeButton = document.getElementById('closeAddImagesModal');
 		
 		this.albumId = null;
 		this.images = null;
 		
-		this.gridContainer.style.visibility = 'hidden';
+		this.gridContainer.style.display = 'none';
+		
+		this.closeButton.addEventListener('click', e => this.gridContainer.style.display = 'none');
 		
 		this.load = function (albumId) {
 			var self = this;
@@ -246,7 +253,7 @@
 			sendAsync('GET', 'FetchImagesToAdd?albumId=' + albumId, null, function (x) {
 				if (x.readyState == XMLHttpRequest.DONE) {
 					self.clear();
-					self.gridContainer.style.visibility = 'visible';
+					self.gridContainer.style.display = 'block';
 					
 					var message = x.responseText;
 					
@@ -345,7 +352,7 @@
 		};
 		
 		this.clear = function () {
-			this.gridContainer.style.visibility = 'hidden';
+			this.gridContainer.style.display = 'none';
 			this.grid.innerHTML = '';
 			this.alertContainer.hide();
 			
@@ -400,7 +407,7 @@
 		
 		this.populate = function () {
 			this.commentList.load(this.image.id);
-			// this.albumSelect.load();
+			this.albumSelect.load(this.image.id, this.currentAlbum);
 			
 			this.imageContainer.style.display = 'block';
 			this.imageContainer.src = '/ImageGallery-RIA' + this.image.filePath;
@@ -417,12 +424,11 @@
 			this.titleContainer.innerHTML = '';
 			this.descContainer.innerHTML = '';
 			this.dateContainer.innerHTML = '';
-		
-			this.currentAlbum = null;
+
 			this.image = null;
 			
 			this.commentList.clear();
-			// this.albumSelect.clear();
+			this.albumSelect.clear();
 		};
 	};
 	
@@ -436,6 +442,30 @@
 		this.comments = null;
 		
 		this.commentList.style.display = 'none';
+		
+		document.getElementById('publishComment').addEventListener('click', e => {
+				var self = this;
+				var errorMsg = document.getElementById('commentFormError');
+				errorMsg.innerHTML = '';
+				
+				sendAsync('POST', 'PublishComment', this.form, function (x) {
+					if (x.readyState == XMLHttpRequest.DONE) {
+						var message = x.responseText;
+						switch (x.status) {
+							case 200:
+								self.load(parseInt(message));
+								break;
+							case 400:
+							case 401:
+							case 500:
+								errorMsg.appendChild(document.createTextNode(x.responseText));
+								break;
+							default:
+								errorMsg.appendChild(document.createTextNode('Unexpected error'));
+						}
+					}
+				});
+			});
 		
 		this.load = function (imageId) {
 			this.imageId = imageId;
@@ -463,29 +493,6 @@
 			
 			document.getElementById('commentUsername').value = sessionStorage.getItem('username');
 			document.getElementById('commentImage').value = this.imageId;
-			document.getElementById('publishComment').addEventListener('click', e => {
-				var self = this;
-				var errorMsg = document.getElementById('commentFormError');
-				errorMsg.innerHTML = '';
-				debugger
-				sendAsync('POST', 'PublishComment', this.form, function (x) {
-					if (x.readyState == XMLHttpRequest.DONE) {
-						var message = x.responseText;
-						switch (x.status) {
-							case 200:
-								self.load(parseInt(message));
-								break;
-							case 400:
-							case 401:
-							case 500:
-								errorMsg.appendChild(document.createTextNode(x.responseText));
-								break;
-							default:
-								errorMsg.appendChild(document.createTextNode('Unexpected error'));
-						}
-					}
-				});
-			});
 			
 			if (this.comments.length == 0) this.alertContainer.display('No comments yet.');
 			else {
@@ -532,7 +539,79 @@
 		};
 	};
 	
-	function AlbumSelect(_albumSelect) {};
+	function AlbumSelect(_albumSelect) {
+		this.albumSelect = _albumSelect;
+		this.form = document.getElementById('addToAlbumForm');
+		this.select = document.getElementById('targetAlbum');
+		this.submit = document.getElementById('addToAlbumSubmit');
+		this.alertContainer = new AlertContainer(document.getElementById('addToAlbumAlert'));
+		
+		this.albumId = null;
+		this.imageId = null;
+		this.albums = null;
+		
+		this.submit.addEventListener('click', e => {
+			if (this.select.value < 0) return;
+			
+			var self = this;
+			
+			sendAsync('POST', 'AddToAlbum', this.form, function (x) {
+				if (x.readyState == XMLHttpRequest.DONE) {				
+					if (x.status == 200)
+						imageDetails.load(self.imageId, self.albumId);
+					else
+						self.alertContainer.displayError(x.responseText);
+				}
+			});
+		}, false);
+		
+		this.load = function (imageId, albumId) {
+			this.clear();
+			this.albumId = albumId;
+			this.imageId = imageId;
+			var self = this;
+			
+			sendAsync('GET', 'FetchAlbumList?ownAlbums=true&albumId=' + albumId, null, function (x) {
+				if (x.readyState == XMLHttpRequest.DONE) {
+					var message = x.responseText;
+					
+					if (x.status == 200) {
+						self.albums = JSON.parse(message);
+						self.populate();
+						self.albumSelect.style.display = 'block';
+					} else {
+						self.alertContainer.displayError(x.responseText);
+					}
+				}
+			});
+		};
+		
+		this.populate = function () {
+			document.getElementById('addToAlbumTargetImg').value = this.imageId;
+			
+			var initialOption = document.createElement('option');
+			initialOption.selected = true;
+			initialOption.disabled = true;
+			initialOption.value = -1;
+			initialOption.appendChild(document.createTextNode('select an album...'));
+			this.select.appendChild(initialOption);
+			
+			this.albums.forEach(album => {
+				var option = document.createElement('option');
+				option.value = album.id;
+				option.appendChild(document.createTextNode(album.title));
+				this.select.appendChild(option);
+			});
+		};
+		
+		this.clear = function () {
+			this.albumSelect.style.display = 'none';
+			this.select.innerHTML = '';
+			this.alertContainer.hide();
+			
+			this.albums = null;
+		};
+	};
 	
 	function PageOrchestrator() {
 		this.start = function() {
@@ -586,6 +665,10 @@
 			welcomeMessage.display();
 			ownAlbums.load();
 			otherAlbums.load();
+			
+			let albumId = sessionStorage.getItem('currentAlbum');
+			if (albumId != null)
+				albumImages.load(albumId);
 		}
 	}
 };

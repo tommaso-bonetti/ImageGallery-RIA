@@ -37,20 +37,49 @@ public class FetchAlbumList extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String ownAlbums = request.getParameter("ownAlbums");
-		List<Album> albums = null;
+		String albumIdString = request.getParameter("albumId");
+		
 		int currentUserId = (int) request.getSession().getAttribute("userId");
 		
+		List<Album> albums = null;
 		AlbumDAO albumDAO = new AlbumDAO(connection);
-		try {
-			if (ownAlbums != null && ownAlbums.equals("true"))
-				albums = albumDAO.fetchAlbumsByOwner(currentUserId);
-			else
-				albums = albumDAO.fetchAlbumsNotByOwner(currentUserId);
-		} catch (Exception e) {
-			e.printStackTrace();
-			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println("Error in retrieving albums from the database");
-			return;
+		
+		if (albumIdString != null) {
+			if (ownAlbums == null || !ownAlbums.equals("true")) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				response.getWriter().println("Invalid request parameters");
+				return;
+			}
+			
+			int albumId;
+			try {
+				albumId = Integer.parseInt(albumIdString);
+			} catch (NumberFormatException e) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				response.getWriter().println("Invalid album id");
+				return;
+			}
+			
+			try {
+				albums = albumDAO.fetchOtherAlbumsByUser(currentUserId, albumId);
+			} catch (SQLException e) {
+				e.printStackTrace();
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				response.getWriter().println("Error in retrieving albums from the database");
+				return;
+			}
+		} else {
+			try {
+				if (ownAlbums != null && ownAlbums.equals("true"))
+					albums = albumDAO.fetchAlbumsByOwner(currentUserId);
+				else
+					albums = albumDAO.fetchAlbumsNotByOwner(currentUserId);
+			} catch (Exception e) {
+				e.printStackTrace();
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				response.getWriter().println("Error in retrieving albums from the database");
+				return;
+			}
 		}
 		
 		Gson gson = new Gson();

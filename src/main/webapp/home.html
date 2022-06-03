@@ -82,12 +82,18 @@
 		</div>
 	</div>
 
-	<div id="imagesToAdd" class="margin-1">
-		<h2 id="imagesToAddTitle"></h2>
-		<p>Click on any image to add it to the album</p>
-		
-		<p id="imagesToAddAlert"></p>
-		<div id="imagesToAddGrid" class="grid-container multi-row"></div>
+	<div id="imagesToAdd" class="modal">
+		<div class="modal-content">
+			<div class="row justify-end">
+				<span id="closeAddImagesModal" class="close-button">&times;</span>
+			</div>
+			
+			<h2 id="imagesToAddTitle"></h2>
+			<p>Click on any image to add it to the album</p>
+				
+			<p id="imagesToAddAlert"></p>
+			<div id="imagesToAddGrid" class="grid-container multi-row"></div>
+		</div>
 	</div>
 	
 	<div id="selectedImageWrapper" class="modal">
@@ -111,21 +117,17 @@
 							<p id="selImgDate" class="light-text text-90"></p>
 						</div>
 						
-						<div class="column" th:if="${otherAlbums != null && album.ownerId == session.userId}">
-							<form id="addToAlbumForm" th:action="@{/AddToAlbum}" method="POST">
+						<div id="albumSelect" class="column">
+							<form id="addToAlbumForm" action="#">
 								<p>
 									<span class="light-text text-90">Add image to: </span>
 									<select id="targetAlbum" name="targetAlbum">
 										<option value="-1" selected disabled>select an album...</option>
-										<option th:each="album : ${otherAlbums}" th:text="${album.title}" th:value="${album.id}"></option>
 									</select>
 								</p>
-								<input type="hidden" name="redirectToAlbum" th:value="${true}" />
-								<input type="hidden" name="userId" th:value="${session.userId}" />
-								<input type="hidden" name="originAlbumId" th:value="${album.id}" />
-								<input type="hidden" name="page" th:value="${page}" />
-								<input type="hidden" name="selectedImageId" th:value="${selectedImage.id}" />
-								<input type="submit" value="Confirm" />
+								<input id="addToAlbumTargetImg" type="hidden" name="targetImage" />
+								<input id="addToAlbumSubmit" type="button" value="Confirm" />
+								<p id="addToAlbumAlert"></p>
 							</form>
 						</div>
 					</div>

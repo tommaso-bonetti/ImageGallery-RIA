@@ -58,7 +58,7 @@ public class PublishComment extends HttpServlet {
 				response.getWriter().println("Invalid user session, please log out");
 				return;
 			}
-		} catch (SQLException e1) {
+		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.getWriter().println("Unable to verify user session");
 			return;

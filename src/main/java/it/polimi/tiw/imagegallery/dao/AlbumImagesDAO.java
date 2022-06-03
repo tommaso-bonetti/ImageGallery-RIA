@@ -13,6 +13,12 @@ public class AlbumImagesDAO {
 	}
 	
 	public void addImageToAlbum(int userId, int imageId, int albumId) throws Exception, SQLException {
+		if (!checkAlbumExistence(albumId))
+			throw new Exception("Nonexistent album");
+		
+		if (!checkImageExistence(imageId))
+			throw new Exception("Nonexistent image");
+		
 		if (!checkAlbumOwnership(userId, albumId))
 			throw new Exception("Cannot add image to album owned by another user");
 		
@@ -26,8 +32,20 @@ public class AlbumImagesDAO {
 			prepStatement.executeUpdate();
 		}
 	}
+	
+	private boolean checkAlbumExistence(int albumId) throws SQLException {
+		String query = "SELECT * FROM Album WHERE albumId = ?";
+		try (PreparedStatement prepStatement = connection.prepareStatement(query)) {
+			prepStatement.setInt(1, albumId);
+			prepStatement.executeQuery();
+			try (ResultSet res = prepStatement.executeQuery()) {
+				if (!res.isBeforeFirst()) return false;
+				return true;
+			}
+		}
+	}
 
-	private boolean checkAlbumOwnership(int userId, int albumId) throws Exception {
+	private boolean checkAlbumOwnership(int userId, int albumId) throws SQLException {
 		String query = "SELECT * FROM Album WHERE albumId = ? AND ownerId = ?";
 		try (PreparedStatement prepStatement = connection.prepareStatement(query)) {
 			prepStatement.setInt(1, albumId);
@@ -40,7 +58,19 @@ public class AlbumImagesDAO {
 		}
 	}
 	
-	private boolean checkImageOwnership(int userId, int imageId) throws Exception {
+	private boolean checkImageExistence(int imageId) throws SQLException {
+		String query = "SELECT * FROM Image WHERE imageId = ?";
+		try (PreparedStatement prepStatement = connection.prepareStatement(query)) {
+			prepStatement.setInt(1, imageId);
+			prepStatement.executeQuery();
+			try (ResultSet res = prepStatement.executeQuery()) {
+				if (!res.isBeforeFirst()) return false;
+				return true;
+			}
+		}
+	}
+	
+	private boolean checkImageOwnership(int userId, int imageId) throws SQLException {
 		String query = "SELECT * FROM Image WHERE imageId = ? AND ownerId = ?";
 		try (PreparedStatement prepStatement = connection.prepareStatement(query)) {
 			prepStatement.setInt(1, imageId);
