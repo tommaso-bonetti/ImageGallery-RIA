@@ -45,14 +45,14 @@
 		this.ownAlbums = _ownAlbums;
 		
 		this.load = function() {
-			var self = this;
+			let self = this;
 			sendAsync('GET', 'FetchAlbumList?ownAlbums=' + self.ownAlbums, null, function(x) {
 				if (x.readyState == XMLHttpRequest.DONE) {
 					self.alertContainer.hide();
-					var message = x.responseText;
+					let message = x.responseText;
 					
 					if (x.status == 200) {
-						var albums = JSON.parse(message);
+						let albums = JSON.parse(message);
 						if (albums.length == 0) {
 							self.alertContainer.display('No albums yet!');
 							return;
@@ -68,23 +68,23 @@
 		this.populate = function(albums) {
 			this.table.innerHTML = '';
 			albums.forEach(album => {
-				var row = document.createElement('tr');
+				let row = document.createElement('tr');
 				
-				var title = document.createElement('td');
+				let title = document.createElement('td');
 				title.textContent = album.title;
 				row.appendChild(title);
 				
-				var creator = document.createElement('td');
+				let creator = document.createElement('td');
 				creator.textContent = album.ownerUsername;
 				row.appendChild(creator);
 				
-				var date = document.createElement('td');
+				let date = document.createElement('td');
 				date.textContent = album.formattedDate;
 				row.appendChild(date);
 				
-				var details = document.createElement('td');
-				var anchor = document.createElement('a');
-				var text = document.createTextNode('See more');
+				let details = document.createElement('td');
+				let anchor = document.createElement('a');
+				let text = document.createTextNode('See more');
 				anchor.href = '#albumDetails';
 				anchor.appendChild(text);
 				anchor.setAttribute('albumId', album.id);
@@ -144,22 +144,22 @@
 		this.addImages.addEventListener('click', e => imagesToAdd.load(e.target.getAttribute('albumId')), false);
 		
 		this.load = function (albumId) {
-			var self = this;
+			let self = this;
 			
 			sendAsync('GET', 'FetchAlbum?albumId=' + albumId, null, function (x) {
 				if (x.readyState == XMLHttpRequest.DONE) {
 					self.clear();
 					self.gridContainer.style.visibility = 'visible';
 					
-					var message = x.responseText;
+					let message = x.responseText;
 					
 					if (x.status == 200) {
-						var album = JSON.parse(message);
+						let album = JSON.parse(message);
 						
-						if (album.ownerUsername !== sessionStorage.getItem('username'))
-							self.addImages.style.display = 'none';
-						else
+						if (album.ownerUsername === sessionStorage.getItem('username')) {
+							self.addImages.style.display = 'block';
 							self.addImages.setAttribute('albumId', album.id);
+						}
 
 						self.albumId = album.id;
 						self.titleContainer.appendChild(document.createTextNode(album.title));
@@ -182,18 +182,18 @@
 		};
 		
 		this.populate = function () {
-			var currentImages = this.images.slice(5 * (this.page - 1), 5 * this.page); 
+			let currentImages = this.images.slice(5 * (this.page - 1), 5 * this.page); 
 			this.grid.innerHTML = '';
 			
 			currentImages.forEach(image => {
-				var gridItem = document.createElement('div');
+				let gridItem = document.createElement('div');
 				gridItem.classList.add('grid-item');
 				
-				var imageContainer = document.createElement('div');
+				let imageContainer = document.createElement('div');
 				imageContainer.classList.add('image-container-grid');
 				
-				var anchor = document.createElement('a');
-				var img = document.createElement('img');
+				let anchor = document.createElement('a');
+				let img = document.createElement('img');
 				img.src = '/ImageGallery-RIA' + image.filePath;
 				img.classList.add('image');
 				anchor.appendChild(img);
@@ -204,7 +204,7 @@
 				imageContainer.appendChild(anchor);
 				gridItem.appendChild(imageContainer);
 				
-				var imageTitle = document.createElement('p');
+				let imageTitle = document.createElement('p');
 				imageTitle.classList.add('image-title');
 				imageTitle.appendChild(document.createTextNode(image.title))
 				gridItem.appendChild(imageTitle);
@@ -225,6 +225,7 @@
 			this.showPrevious.style.visibility = 'hidden';
 			this.showNext.style.visibility = 'hidden';
 			this.addImages.removeAttribute('albumId');
+			this.addImages.style.display = 'none';
 			
 			this.albumId = null;
 			this.images = null;
@@ -248,20 +249,20 @@
 		this.closeButton.addEventListener('click', e => this.gridContainer.style.display = 'none');
 		
 		this.load = function (albumId) {
-			var self = this;
+			let self = this;
 			
 			sendAsync('GET', 'FetchImagesToAdd?albumId=' + albumId, null, function (x) {
 				if (x.readyState == XMLHttpRequest.DONE) {
 					self.clear();
 					self.gridContainer.style.display = 'block';
 					
-					var message = x.responseText;
+					let message = x.responseText;
 					
 					if (x.status == 200) {
-						var res = JSON.parse(message);
+						let res = JSON.parse(message);
 						
-						var album = res.album;
-						var images = res.images;
+						let album = res.album;
+						let images = res.images;
 						
 						self.albumId = album.id;
 						self.titleContainer.appendChild(document.createTextNode('Add images to ' + album.title));
@@ -284,48 +285,48 @@
 			this.grid.innerHTML = '';
 			
 			this.images.forEach(image => {
-				var gridItem = document.createElement('div');
+				let gridItem = document.createElement('div');
 				gridItem.classList.add('grid-item');
 				
-				var imageContainer = document.createElement('div');
+				let imageContainer = document.createElement('div');
 				imageContainer.classList.add('image-container-grid');
 				
-				var img = document.createElement('img');
+				let img = document.createElement('img');
 				img.src = '/ImageGallery-RIA' + image.filePath;
 				img.classList.add('image');				
 				imageContainer.appendChild(img);
 				gridItem.appendChild(imageContainer);
 				
-				var imageTitle = document.createElement('p');
+				let imageTitle = document.createElement('p');
 				imageTitle.classList.add('image-title');
 				imageTitle.appendChild(document.createTextNode(image.title))
 				gridItem.appendChild(imageTitle);
 				
-				var form = document.createElement('form');
+				let form = document.createElement('form');
 				form.action = '#';
 				form.classList.add('align-center');
 				
-				var albumIdField = document.createElement('input');
+				let albumIdField = document.createElement('input');
 				albumIdField.type = 'hidden';
 				albumIdField.name = 'targetAlbum';
 				albumIdField.value = this.albumId;
 				form.appendChild(albumIdField);
 				
-				var imageIdField = document.createElement('input');
+				let imageIdField = document.createElement('input');
 				imageIdField.type = 'hidden';
 				imageIdField.name = 'targetImage';
 				imageIdField.value = image.id;
 				form.appendChild(imageIdField);
 				
-				var submit = document.createElement('input');
+				let submit = document.createElement('input');
 				submit.type = 'button';
 				submit.value = 'Add';
 				
 				submit.addEventListener('click', e => {
-					var self = this;
+					let self = this;
 					sendAsync('POST', 'AddToAlbum', form, function (x) {
 						if (x.readyState == XMLHttpRequest.DONE) {
-							var message = x.responseText;
+							let message = x.responseText;
 							
 							switch (x.status) {
 								case 200: // ok
@@ -385,14 +386,14 @@
 		
 		this.load = function (imageId, albumId) {
 			this.currentAlbum = albumId;
-			var self = this;
+			let self = this;
 			
 			sendAsync('GET', 'FetchImage?imageId=' + imageId + "&albumId=" + albumId, null, function (x) {				
 				if (x.readyState == XMLHttpRequest.DONE) {
 					self.clear();
 					self.modal.style.display = 'block';
 					
-					var message = x.responseText;
+					let message = x.responseText;
 					
 					if (x.status == 200) {
 						self.image = JSON.parse(message);
@@ -444,13 +445,13 @@
 		this.commentList.style.display = 'none';
 		
 		document.getElementById('publishComment').addEventListener('click', e => {
-				var self = this;
-				var errorMsg = document.getElementById('commentFormError');
+				let self = this;
+				let errorMsg = document.getElementById('commentFormError');
 				errorMsg.innerHTML = '';
 				
 				sendAsync('POST', 'PublishComment', this.form, function (x) {
 					if (x.readyState == XMLHttpRequest.DONE) {
-						var message = x.responseText;
+						let message = x.responseText;
 						switch (x.status) {
 							case 200:
 								self.load(parseInt(message));
@@ -469,14 +470,14 @@
 		
 		this.load = function (imageId) {
 			this.imageId = imageId;
-			var self = this;
+			let self = this;
 			
 			sendAsync('GET', 'FetchComments?imageId=' + imageId, null, function (x) {
 				if (x.readyState == XMLHttpRequest.DONE) {
 					self.clear();
 					self.commentList.style.display = 'block';
 					
-					var message = x.responseText;
+					let message = x.responseText;
 					
 					if (x.status == 200) {
 						self.comments = JSON.parse(message);
@@ -497,28 +498,28 @@
 			if (this.comments.length == 0) this.alertContainer.display('No comments yet.');
 			else {
 				this.comments.forEach(comment => {
-					var commentBox = document.createElement('div');
+					let commentBox = document.createElement('div');
 					commentBox.classList.add('comment');
 					
-					var body = document.createElement('p');
+					let body = document.createElement('p');
 					body.classList.add('comment-body', 'text-90');
 					body.appendChild(document.createTextNode(comment.body));
 					commentBox.appendChild(body);
 					
-					var details = document.createElement('p');
+					let details = document.createElement('p');
 					details.classList.add('comment-details', 'text-75');
 					
-					var by = document.createElement('span');
+					let by = document.createElement('span');
 					by.classList.add('light-text');
 					by.appendChild(document.createTextNode('by '));
 					details.appendChild(by);
 					
-					var publisher = document.createElement('span');
+					let publisher = document.createElement('span');
 					publisher.classList.add('bold-text');
 					publisher.appendChild(document.createTextNode(comment.publisherUsername));
 					details.appendChild(publisher);
 					
-					var date = document.createElement('span');
+					let date = document.createElement('span');
 					date.classList.add('light-text');
 					date.appendChild(document.createTextNode(' - ' + comment.formattedDate));
 					details.appendChild(date);
@@ -553,7 +554,7 @@
 		this.submit.addEventListener('click', e => {
 			if (this.select.value < 0) return;
 			
-			var self = this;
+			let self = this;
 			
 			sendAsync('POST', 'AddToAlbum', this.form, function (x) {
 				if (x.readyState == XMLHttpRequest.DONE) {				
@@ -569,11 +570,11 @@
 			this.clear();
 			this.albumId = albumId;
 			this.imageId = imageId;
-			var self = this;
+			let self = this;
 			
 			sendAsync('GET', 'FetchAlbumList?ownAlbums=true&albumId=' + albumId, null, function (x) {
 				if (x.readyState == XMLHttpRequest.DONE) {
-					var message = x.responseText;
+					let message = x.responseText;
 					
 					if (x.status == 200) {
 						self.albums = JSON.parse(message);
@@ -589,7 +590,7 @@
 		this.populate = function () {
 			document.getElementById('addToAlbumTargetImg').value = this.imageId;
 			
-			var initialOption = document.createElement('option');
+			let initialOption = document.createElement('option');
 			initialOption.selected = true;
 			initialOption.disabled = true;
 			initialOption.value = -1;
@@ -597,7 +598,7 @@
 			this.select.appendChild(initialOption);
 			
 			this.albums.forEach(album => {
-				var option = document.createElement('option');
+				let option = document.createElement('option');
 				option.value = album.id;
 				option.appendChild(document.createTextNode(album.title));
 				this.select.appendChild(option);
@@ -617,7 +618,8 @@
 		this.start = function() {
 			// Initialize the logout button
 			document.getElementById('logout').addEventListener('click', e => {
-				sessionStorage.removeItem('username');
+				sessionStorage.clear();
+				sendAsync('GET', 'Logout', null, () => window.location.href = 'login.html');
 			});
 			
 			// Initialize the main page components
