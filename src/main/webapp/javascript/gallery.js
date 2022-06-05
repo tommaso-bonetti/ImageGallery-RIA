@@ -442,6 +442,7 @@
 		this.wrapper = document.getElementById('commentsWrapper');
 		this.alertContainer = new AlertContainer(document.getElementById('commentsAlert'));
 		this.form = document.getElementById('commentForm');
+		this.formAlertContainer = new AlertContainer(document.getElementById('commentFormError'));
 		
 		this.imageId = null;
 		this.comments = null;
@@ -449,28 +450,35 @@
 		this.commentList.style.display = 'none';
 		
 		document.getElementById('publishComment').addEventListener('click', e => {
-				let self = this;
-				let errorMsg = document.getElementById('commentFormError');
-				errorMsg.innerHTML = '';
+			let self = this;
+			this.formAlertContainer.hide();
+			
+			let comment = self.form.elements['commentBody'].value;
+			
+			if (comment == null || comment.length == 0) {
+				self.formAlertContainer.displayError('Empty comment body');
+				console.log('Validity check failed - comment');
+				return;
+			}
 				
-				sendAsync('POST', 'PublishComment', this.form, function (x) {
-					if (x.readyState == XMLHttpRequest.DONE) {
-						let message = x.responseText;
-						switch (x.status) {
-							case 200:
-								self.load(parseInt(message));
-								break;
-							case 400:
-							case 401:
-							case 500:
-								errorMsg.appendChild(document.createTextNode(x.responseText));
-								break;
-							default:
-								errorMsg.appendChild(document.createTextNode('Unexpected error'));
-						}
+			sendAsync('POST', 'PublishComment', this.form, function (x) {
+				if (x.readyState == XMLHttpRequest.DONE) {
+					let message = x.responseText;
+					switch (x.status) {
+						case 200:
+							self.load(parseInt(message));
+							break;
+						case 400:
+						case 401:
+						case 500:
+							self.formAlertContainer.displayError(x.responseText);
+							break;
+						default:
+							self.formAlertContainer.displayError('Unexpected error');
 					}
-				});
+				}
 			});
+		});
 		
 		this.load = function (imageId) {
 			this.imageId = imageId;
@@ -539,6 +547,7 @@
 			this.commentList.style.display = 'hidden';
 			this.wrapper.innerHTML = '';
 			this.alertContainer.hide();
+			this.formAlertContainer.hide();
 			
 			this.comments = null;
 		};

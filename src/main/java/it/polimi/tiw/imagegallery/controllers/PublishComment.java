@@ -44,6 +44,8 @@ public class PublishComment extends HttpServlet {
 				throw new Exception("Missing user session");
 			if (imageIdString == null || imageIdString.isEmpty())
 				throw new Exception("Missing image id");
+			if (commentBody == null || commentBody.isEmpty())
+				throw new Exception("Missing comment body");
 		} catch (Exception e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().println(e.getMessage());

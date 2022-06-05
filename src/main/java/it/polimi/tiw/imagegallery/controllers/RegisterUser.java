@@ -48,7 +48,7 @@ public class RegisterUser extends HttpServlet {
 		String repeatPassword = null;
 		
 		Pattern emailPattern = Pattern.compile("^[a-zA-Z][a-zA-Z0-9_.-]+[a-zA-Z0-9]@[a-zA-Z][a-zA-Z0-9.-]+[a-zA-Z]$");
-		Pattern usernamePattern = Pattern.compile("^[a-zA-Z][a-zA-Z0-9_.-]*$");
+		Pattern usernamePattern = Pattern.compile("^[a-zA-Z][a-zA-Z0-9_.-]*[a-zA-Z0-9]$");
 		
 		List<String> errorMessages = new ArrayList<>();
 		Gson gson = new Gson();
@@ -80,8 +80,8 @@ public class RegisterUser extends HttpServlet {
 			errorMessages.add("Invalid email format");
 		}
 		if (!usernamePattern.matcher(username).matches()) {
-			System.out.println("Username can only contain letters, numbers, underscores, dots and hyphens, must start with a letter");
-			errorMessages.add("Username can only contain letters, numbers, underscores, dots and hyphens, must start with a letter");
+			System.out.println("Username can only contain letters, numbers, underscores, dots and hyphens, must start with a letter and end with a letter or number");
+			errorMessages.add("Username can only contain letters, numbers, underscores, dots and hyphens, must start with a letter and end with a letter or number");
 		}
 		if (password.length() < 6) {
 			System.out.println("Password needs to be at least 6 characters long");
