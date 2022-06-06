@@ -22,7 +22,7 @@ public class AlbumDAO {
 		
 		String query = "SELECT albumId, title, creationDate, ownerId, username FROM Album JOIN User"
 				+ " ON Album.ownerId = User.userId WHERE ownerId = ?"
-				+ " ORDER BY CASE WHEN customIndex IS null THEN 1 ELSE 0 END, customIndex ASC, creationDate DESC";  // apply custom order
+				+ " ORDER BY CASE WHEN customIndex IS null THEN 1 ELSE 0 END, customIndex ASC, creationDate DESC, albumId DESC";  // apply custom order
 		try (PreparedStatement prepStatement = connection.prepareStatement(query)) {
 			prepStatement.setInt(1, ownerId);
 			try (ResultSet res = prepStatement.executeQuery()) {
@@ -45,7 +45,7 @@ public class AlbumDAO {
 		List<Album> albums = new ArrayList<>();
 		
 		String query = "SELECT albumId, title, creationDate, ownerId, username FROM Album JOIN User"
-				+ " ON Album.ownerId = User.userId WHERE ownerId <> ? ORDER BY creationDate DESC";
+				+ " ON Album.ownerId = User.userId WHERE ownerId <> ? ORDER BY creationDate DESC, albumId DESC";
 		try (PreparedStatement prepStatement = connection.prepareStatement(query)) {
 			prepStatement.setInt(1, ownerId);
 			try (ResultSet res = prepStatement.executeQuery()) {
@@ -124,7 +124,7 @@ public class AlbumDAO {
 		List<Album> albums = new ArrayList<>();
 		
 		String query = "SELECT albumId, title, creationDate, ownerId, username FROM Album JOIN User"
-				+ " ON Album.ownerId = User.userId WHERE ownerId = ? AND albumId <> ? ORDER BY creationDate DESC";
+				+ " ON Album.ownerId = User.userId WHERE ownerId = ? AND albumId <> ? ORDER BY creationDate DESC, albumId DESC";
 		try (PreparedStatement prepStatement = connection.prepareStatement(query)) {
 			prepStatement.setInt(1, ownerId);
 			prepStatement.setInt(2, albumId);

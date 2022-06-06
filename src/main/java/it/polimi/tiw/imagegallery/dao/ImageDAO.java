@@ -45,7 +45,7 @@ public class ImageDAO {
 		
 		String query =
 				"SELECT * FROM Image WHERE imageId = ANY (SELECT imageId FROM AlbumImages WHERE albumId = ?)"
-				+ " ORDER BY uploadDate DESC";
+				+ " ORDER BY uploadDate DESC, imageId DESC";
 		try (PreparedStatement prepStatement = connection.prepareStatement(query)) {
 			prepStatement.setInt(1, albumId);
 			try (ResultSet res = prepStatement.executeQuery()) {
