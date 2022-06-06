@@ -28,13 +28,20 @@
 		};
 		
 		this.displayError = message => {
+			this.container.classList.remove('success');
 			this.container.classList.add('error');
+			this.display(message);
+		};
+		
+		this.displaySuccess = message => {
+			this.container.classList.remove('error');
+			this.container.classList.add('success');
 			this.display(message);
 		};
 		
 		this.hide = () => {
 			this.container.style.display = 'none';
-			this.container.classList.remove('error');
+			this.container.classList.remove(...this.container.classList);
 		};
 	}
 	
@@ -44,6 +51,43 @@
 		this.alertContainer = new AlertContainer(_alertContainer);
 		this.ownAlbums = _ownAlbums;
 		this.reorderForm = document.getElementById('reorderAlbums');
+		this.saveReorder = null;
+		
+		if (this.ownAlbums) {
+			this.saveReorder = document.getElementById('saveReorder');
+			this.saveReorder.parentElement.style.display = 'none';
+			
+			this.saveReorder.addEventListener('click', e => {
+				let order = Array.from(this.table.children).map(tr => tr.getAttribute('albumId'));
+				this.reorderForm.elements['order'].value = '[' + order + ']';
+				
+				let self = this;
+				sendAsync('POST', 'ReorderAlbums', this.reorderForm, function (x) {
+					if (x.readyState == XMLHttpRequest.DONE) {
+						let message = x.responseText;
+						
+						switch (x.status) {
+							case 200: // ok
+								self.alertContainer.displaySuccess('Successfully reordered album list!');
+								setTimeout(() => self.alertContainer.hide(), 2000);
+								break;
+							case 400: // bad request
+							case 401: // unauthorized
+							case 500: // internal server error
+								self.alertContainer.displayError(message);
+								setTimeout(() => self.alertContainer.hide(), 2000);
+								break;
+							default:
+								self.alertContainer.displayError('Unexpected error');
+								setTimeout(() => self.alertContainer.hide(), 2000);
+						}
+						
+						self.saveReorder.parentElement.style.display = 'none';
+						self.load();
+					}
+				});
+			});
+		}
 		
 		this.load = function() {
 			let self = this;
@@ -78,6 +122,7 @@
 				
 				if (this.ownAlbums) {
 					title.draggable = true;
+					title.classList.add('draggable');
 					title.addEventListener('dragstart', e => dragged = e.target.parentNode);
 					title.addEventListener('dragover', e => e.preventDefault());
 					title.addEventListener('drop', e => {
@@ -91,34 +136,7 @@
 						else
 							destination.before(dragged);
 						
-						let order = Array.from(e.target.closest('tbody').children).map(tr => tr.getAttribute('albumId'));
-						this.reorderForm.elements['order'].value = '[' + order + ']';
-						
-						let self = this;
-						
-						sendAsync('POST', 'ReorderAlbums', this.reorderForm, function (x) {
-							if (x.readyState == XMLHttpRequest.DONE) {
-								let message = x.responseText;
-								
-								switch (x.status) {
-									case 200: // ok
-										self.alertContainer.display('Successfully reordered album list');
-										setTimeout(() => self.alertContainer.hide(), 5000);
-										break;
-									case 400: // bad request
-									case 401: // unauthorized
-									case 500: // internal server error
-										self.alertContainer.displayError(message);
-										setTimeout(() => self.alertContainer.hide(), 5000);
-										break;
-									default:
-										self.alertContainer.displayError('Unexpected error');
-										setTimeout(() => self.alertContainer.hide(), 5000);
-								}
-								
-								self.load();
-							}
-						});
+						this.saveReorder.parentElement.style.display = 'block';
 					});
 				}
 				
@@ -557,7 +575,7 @@
 			document.getElementById('commentUsername').value = sessionStorage.getItem('username');
 			document.getElementById('commentImage').value = this.imageId;
 			
-			if (this.comments.length == 0) this.alertContainer.display('No comments yet.');
+			if (this.comments.length == 0) this.alertContainer.display('No comments yet!');
 			else {
 				this.comments.forEach(comment => {
 					let commentBox = document.createElement('div');
@@ -696,9 +714,13 @@
 						let message = x.responseText;
 						
 						if (x.status == 200) {
-							createAlbumAlert.display('Album created successfully!');
-							setTimeout(() => createAlbumAlert.hide(), 5000);
-							albumImages.load(parseInt(message));
+							createAlbumAlert.displaySuccess('Album created successfully!');
+							setTimeout(() => createAlbumAlert.hide(), 2000);
+							
+							let albumId = parseInt(message);
+							ownAlbums.load();
+							albumImages.load(albumId);
+							sessionStorage.setItem('currentAlbum', albumId);
 						} else {
 							createAlbumAlert.displayError(message);
 						}

@@ -70,8 +70,9 @@ public class CreateAlbum extends HttpServlet {
 			albumId = albumDAO.createAlbum(userId, albumTitle);
 			if (albumId < 0) throw new Exception();
 		} catch (Exception e) {
+			e.printStackTrace();
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println("Unable to publish comment");
+			response.getWriter().println("Unable to create album");
 			return;
 		}
 		

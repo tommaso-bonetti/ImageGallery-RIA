@@ -150,6 +150,10 @@ textarea {
 	color: red;
 }
 
+.success {
+	color: green;
+}
+
 .modal {
 	display: none;
 	position: fixed;
@@ -182,4 +186,8 @@ textarea {
 
 .justify-end {
 	justify-content: flex-end;
+}
+
+.draggable {
+	cursor: all-scroll;
 }

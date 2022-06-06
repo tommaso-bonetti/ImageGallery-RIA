@@ -87,21 +87,36 @@ public class AlbumDAO {
 	}
 	
 	public int createAlbum(int userId, String albumTitle) throws SQLException {
-		String query = "INSERT INTO Album (title, creationDate, ownerId, customIndex) VALUES (?, ?, ?, ?)";
-		try (PreparedStatement prepStatement = connection.prepareStatement(query)) {
-			prepStatement.setString(1, albumTitle);
-			prepStatement.setDate(2, new Date(System.currentTimeMillis()));
-			prepStatement.setInt(3, userId);
-			prepStatement.setInt(4, 0);  // set as first in order
-			prepStatement.executeUpdate();
+		connection.setAutoCommit(false);
+		
+		String insert = "INSERT INTO Album (title, creationDate, ownerId, customIndex) VALUES (?, ?, ?, ?)";
+		String update = "UPDATE Album SET customIndex = (customIndex + 1) WHERE albumId <> ? AND ownerId = ?";
+		PreparedStatement insertPrepStatement = null;
+		PreparedStatement updatePrepStatement = null;
+		
+		try {
+			insertPrepStatement = connection.prepareStatement(insert);
+			
+			insertPrepStatement.setString(1, albumTitle);
+			insertPrepStatement.setDate(2, new Date(System.currentTimeMillis()));
+			insertPrepStatement.setInt(3, userId);
+			insertPrepStatement.setInt(4, 0);  // set as first in order
+			insertPrepStatement.executeUpdate();
+			
+			updatePrepStatement = connection.prepareStatement(update);
+			
+			updatePrepStatement.setInt(1, albumIdByTitle(albumTitle));
+			updatePrepStatement.setInt(2, userId);
+			updatePrepStatement.executeUpdate();
+			
+			connection.commit();
+		} catch (SQLException e) {
+			connection.rollback();
+			connection.setAutoCommit(true);
+			throw e;
 		}
 		
-		String update = "UPDATE Album SET customIndex = (customIndex + 1) WHERE ownerId = ?";
-		try (PreparedStatement prepStatement = connection.prepareStatement(update)) {
-			prepStatement.setInt(1, userId);
-			prepStatement.executeUpdate();
-		}
-		
+		connection.setAutoCommit(true);
 		return albumIdByTitle(albumTitle);
 	}
 
@@ -137,15 +152,27 @@ public class AlbumDAO {
 		if (order.size() != userAlbumsNumber(userId))
 			throw new Exception("Custom order must contain all albums");
 		
-		for (int i = 0; i < order.size(); i++) {
-			String update = "UPDATE Album SET customIndex = ? WHERE albumId = ? AND ownerId = ?";
-			try (PreparedStatement prepStatement = connection.prepareStatement(update)) {
+		connection.setAutoCommit(false);
+		
+		try {
+			for (int i = 0; i < order.size(); i++) {
+				String update = "UPDATE Album SET customIndex = ? WHERE albumId = ? AND ownerId = ?";
+				PreparedStatement prepStatement = connection.prepareStatement(update);
+				
 				prepStatement.setInt(1, i);
 				prepStatement.setInt(2, order.get(i));
 				prepStatement.setInt(3, userId);
 				prepStatement.executeUpdate();
 			}
+			
+			connection.commit();
+		} catch (SQLException e) {
+			connection.rollback();
+			connection.setAutoCommit(true);
+			throw e;
 		}
+		
+		connection.setAutoCommit(true);
 	}
 	
 	private int albumIdByTitle(String title) throws SQLException {
