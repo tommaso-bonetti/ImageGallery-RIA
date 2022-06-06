@@ -43,12 +43,12 @@
 		this.table = _table;
 		this.alertContainer = new AlertContainer(_alertContainer);
 		this.ownAlbums = _ownAlbums;
+		this.reorderForm = document.getElementById('reorderAlbums');
 		
 		this.load = function() {
 			let self = this;
 			sendAsync('GET', 'FetchAlbumList?ownAlbums=' + self.ownAlbums, null, function(x) {
 				if (x.readyState == XMLHttpRequest.DONE) {
-					self.alertContainer.hide();
 					let message = x.responseText;
 					
 					if (x.status == 200) {
@@ -66,12 +66,62 @@
 		};
 		
 		this.populate = function(albums) {
+			let dragged = null;
+
 			this.table.innerHTML = '';
 			albums.forEach(album => {
 				let row = document.createElement('tr');
+				row.setAttribute('albumId', album.id);
 				
 				let title = document.createElement('td');
 				title.textContent = album.title;
+				
+				if (this.ownAlbums) {
+					title.draggable = true;
+					title.addEventListener('dragstart', e => dragged = e.target.parentNode);
+					title.addEventListener('dragover', e => e.preventDefault());
+					title.addEventListener('drop', e => {
+						let rows = Array.from(e.target.closest('tbody').children);
+						let destination = e.target.parentNode;
+						
+						if (dragged == null) return;
+						
+						if (rows.indexOf(destination) > rows.indexOf(dragged))
+							destination.after(dragged);
+						else
+							destination.before(dragged);
+						
+						let order = Array.from(e.target.closest('tbody').children).map(tr => tr.getAttribute('albumId'));
+						this.reorderForm.elements['order'].value = '[' + order + ']';
+						
+						let self = this;
+						
+						sendAsync('POST', 'ReorderAlbums', this.reorderForm, function (x) {
+							if (x.readyState == XMLHttpRequest.DONE) {
+								let message = x.responseText;
+								
+								switch (x.status) {
+									case 200: // ok
+										self.alertContainer.display('Successfully reordered album list');
+										setTimeout(() => self.alertContainer.hide(), 5000);
+										break;
+									case 400: // bad request
+									case 401: // unauthorized
+									case 500: // internal server error
+										self.alertContainer.displayError(message);
+										setTimeout(() => self.alertContainer.hide(), 5000);
+										break;
+									default:
+										self.alertContainer.displayError('Unexpected error');
+										setTimeout(() => self.alertContainer.hide(), 5000);
+								}
+								
+								self.load();
+							}
+						});
+					});
+				}
+				
 				row.appendChild(title);
 				
 				let creator = document.createElement('td');
