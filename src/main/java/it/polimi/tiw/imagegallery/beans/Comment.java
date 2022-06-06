@@ -1,6 +1,6 @@
 package it.polimi.tiw.imagegallery.beans;
 
-import java.sql.Date;
+import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -13,12 +13,7 @@ public class Comment {
 	private Date publishedDate;
 	private String formattedDate;
 	
-	private final transient DateFormat formatter;
-	
-	public Comment() {
-		super();
-		formatter = new SimpleDateFormat("dd/MM/yyyy");
-	}
+	private final transient DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 	
 	public int getId() {
 		return id;

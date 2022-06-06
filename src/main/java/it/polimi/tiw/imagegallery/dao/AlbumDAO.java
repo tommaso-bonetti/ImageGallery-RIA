@@ -1,10 +1,10 @@
 package it.polimi.tiw.imagegallery.dao;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +22,7 @@ public class AlbumDAO {
 		
 		String query = "SELECT albumId, title, creationDate, ownerId, username FROM Album JOIN User"
 				+ " ON Album.ownerId = User.userId WHERE ownerId = ?"
-				+ " ORDER BY CASE WHEN customIndex IS null THEN 1 ELSE 0 END, customIndex ASC, albumId DESC";  // apply custom order
+				+ " ORDER BY CASE WHEN customIndex IS null THEN 1 ELSE 0 END, customIndex ASC, creationDate DESC";  // apply custom order
 		try (PreparedStatement prepStatement = connection.prepareStatement(query)) {
 			prepStatement.setInt(1, ownerId);
 			try (ResultSet res = prepStatement.executeQuery()) {
@@ -30,7 +30,7 @@ public class AlbumDAO {
 					Album album = new Album();
 					album.setId(res.getInt("albumId"));
 					album.setTitle(res.getString("title"));
-					album.setCreationDate(res.getDate("creationDate"));
+					album.setCreationDate(res.getTimestamp("creationDate"));
 					album.setOwnerId(res.getInt("ownerId"));
 					album.setOwnerUsername(res.getString("username"));
 					albums.add(album);
@@ -45,7 +45,7 @@ public class AlbumDAO {
 		List<Album> albums = new ArrayList<>();
 		
 		String query = "SELECT albumId, title, creationDate, ownerId, username FROM Album JOIN User"
-				+ " ON Album.ownerId = User.userId WHERE ownerId <> ? ORDER BY albumId DESC";
+				+ " ON Album.ownerId = User.userId WHERE ownerId <> ? ORDER BY creationDate DESC";
 		try (PreparedStatement prepStatement = connection.prepareStatement(query)) {
 			prepStatement.setInt(1, ownerId);
 			try (ResultSet res = prepStatement.executeQuery()) {
@@ -53,7 +53,7 @@ public class AlbumDAO {
 					Album album = new Album();
 					album.setId(res.getInt("albumId"));
 					album.setTitle(res.getString("title"));
-					album.setCreationDate(res.getDate("creationDate"));
+					album.setCreationDate(res.getTimestamp("creationDate"));
 					album.setOwnerId(res.getInt("ownerId"));
 					album.setOwnerUsername(res.getString("username"));
 					albums.add(album);
@@ -77,7 +77,7 @@ public class AlbumDAO {
 					Album album= new Album();
 					album.setId(res.getInt("albumId"));
 					album.setTitle(res.getString("title"));
-					album.setCreationDate(res.getDate("creationDate"));
+					album.setCreationDate(res.getTimestamp("creationDate"));
 					album.setOwnerId(res.getInt("ownerId"));
 					album.setOwnerUsername(res.getString("username"));
 					return album;
@@ -98,7 +98,7 @@ public class AlbumDAO {
 			insertPrepStatement = connection.prepareStatement(insert);
 			
 			insertPrepStatement.setString(1, albumTitle);
-			insertPrepStatement.setDate(2, new Date(System.currentTimeMillis()));
+			insertPrepStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
 			insertPrepStatement.setInt(3, userId);
 			insertPrepStatement.setInt(4, 0);  // set as first in order
 			insertPrepStatement.executeUpdate();
@@ -124,7 +124,7 @@ public class AlbumDAO {
 		List<Album> albums = new ArrayList<>();
 		
 		String query = "SELECT albumId, title, creationDate, ownerId, username FROM Album JOIN User"
-				+ " ON Album.ownerId = User.userId WHERE ownerId = ? AND albumId <> ? ORDER BY albumId DESC";
+				+ " ON Album.ownerId = User.userId WHERE ownerId = ? AND albumId <> ? ORDER BY creationDate DESC";
 		try (PreparedStatement prepStatement = connection.prepareStatement(query)) {
 			prepStatement.setInt(1, ownerId);
 			prepStatement.setInt(2, albumId);
@@ -133,7 +133,7 @@ public class AlbumDAO {
 					Album album = new Album();
 					album.setId(res.getInt("albumId"));
 					album.setTitle(res.getString("title"));
-					album.setCreationDate(res.getDate("creationDate"));
+					album.setCreationDate(res.getTimestamp("creationDate"));
 					album.setOwnerId(res.getInt("ownerId"));
 					album.setOwnerUsername(res.getString("username"));
 					albums.add(album);
@@ -156,7 +156,7 @@ public class AlbumDAO {
 		
 		try {
 			for (int i = 0; i < order.size(); i++) {
-				String update = "UPDATE Album SET customIndex = ? WHERE albumId = ? AND ownerId = ?";
+				String update = "UPDATE Album SET customIndex = ? WHERE albumId = ?";
 				PreparedStatement prepStatement = connection.prepareStatement(update);
 				
 				prepStatement.setInt(1, i);

@@ -1,10 +1,10 @@
 package it.polimi.tiw.imagegallery.dao;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +21,7 @@ public class CommentDAO {
 		List<Comment> comments = new ArrayList<>();
 		
 		String query = "SELECT commentId, body, publisherId, imageId, publishedDate, username FROM Comment JOIN User"
-				+ " ON Comment.publisherId = User.userId WHERE imageId = ? ORDER BY commentId ASC";
+				+ " ON Comment.publisherId = User.userId WHERE imageId = ? ORDER BY publishedDate ASC";
 		try (PreparedStatement prepStatement = connection.prepareStatement(query)) {
 			prepStatement.setInt(1, imageId);
 			try (ResultSet res = prepStatement.executeQuery()) {
@@ -32,7 +32,7 @@ public class CommentDAO {
 					comment.setPublisherId(res.getInt("publisherId"));
 					comment.setPublisherUsername(res.getString("username"));
 					comment.setImageId(res.getInt("imageId"));
-					comment.setPublishedDate(res.getDate("publishedDate"));
+					comment.setPublishedDate(res.getTimestamp("publishedDate"));
 					comments.add(comment);
 				}
 			}
@@ -47,7 +47,7 @@ public class CommentDAO {
 			prepStatement.setString(1, body);
 			prepStatement.setInt(2, publisherId);
 			prepStatement.setInt(3, imageId);
-			prepStatement.setDate(4, new Date(System.currentTimeMillis()));
+			prepStatement.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
 			prepStatement.executeUpdate();
 		}
 	}

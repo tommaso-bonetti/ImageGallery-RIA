@@ -1,6 +1,6 @@
 package it.polimi.tiw.imagegallery.beans;
 
-import java.sql.Date;
+import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -13,12 +13,7 @@ public class Image {
 	private String filePath;
 	private int ownerId;
 	
-	private final transient DateFormat formatter;
-	
-	public Image() {
-		super();
-		formatter = new SimpleDateFormat("dd/MM/yyyy");
-	}
+	private final transient DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 	
 	public int getId() {
 		return id;
