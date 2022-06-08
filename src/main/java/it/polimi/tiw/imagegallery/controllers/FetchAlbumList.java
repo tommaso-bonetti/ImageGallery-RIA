@@ -41,7 +41,12 @@ public class FetchAlbumList extends HttpServlet {
 		String ownAlbums = StringEscapeUtils.escapeJava(request.getParameter("ownAlbums"));
 		String albumIdString = StringEscapeUtils.escapeJava(request.getParameter("albumId"));
 		
-		int currentUserId = (int) request.getSession().getAttribute("userId");
+		Integer currentUserId = (Integer) request.getSession().getAttribute("userId");		
+		if (currentUserId == null) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.getWriter().println("Missing user session");
+			return;
+		}
 		
 		List<Album> albums = null;
 		AlbumDAO albumDAO = new AlbumDAO(connection);
@@ -57,7 +62,7 @@ public class FetchAlbumList extends HttpServlet {
 			try {
 				albumId = Integer.parseInt(albumIdString);
 			} catch (NumberFormatException e) {
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 				response.getWriter().println("Invalid album id");
 				return;
 			}

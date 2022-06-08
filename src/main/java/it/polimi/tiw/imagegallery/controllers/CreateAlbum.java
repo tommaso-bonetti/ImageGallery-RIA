@@ -40,6 +40,13 @@ public class CreateAlbum extends HttpServlet {
 		String username = StringEscapeUtils.escapeJava(request.getParameter("username"));
 		String albumTitle = StringEscapeUtils.escapeJava(request.getParameter("albumTitle"));
 		
+		Integer userId = (Integer) request.getSession().getAttribute("userId");		
+		if (userId == null) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.getWriter().println("Missing user session");
+			return;
+		}
+		
 		try {
 			if (username == null || username.isEmpty())
 				throw new Exception("Missing user session");
@@ -52,7 +59,6 @@ public class CreateAlbum extends HttpServlet {
 		}
 		
 		UserDAO userDAO = new UserDAO(connection);
-		Integer userId = (Integer) request.getSession().getAttribute("userId");
 		try {
 			if (userId == null || userDAO.getUser(username).getId() != userId) {
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

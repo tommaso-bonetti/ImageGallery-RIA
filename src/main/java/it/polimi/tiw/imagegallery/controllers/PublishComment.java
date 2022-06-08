@@ -41,6 +41,13 @@ public class PublishComment extends HttpServlet {
 		String imageIdString = StringEscapeUtils.escapeJava(request.getParameter("imageId"));
 		String commentBody = StringEscapeUtils.escapeJava(request.getParameter("commentBody"));
 		
+		Integer userId = (Integer) request.getSession().getAttribute("userId");		
+		if (userId == null) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.getWriter().println("Missing user session");
+			return;
+		}
+		
 		try {
 			if (username == null || username.isEmpty())
 				throw new Exception("Missing user session");
@@ -55,7 +62,6 @@ public class PublishComment extends HttpServlet {
 		}
 		
 		UserDAO userDAO = new UserDAO(connection);
-		Integer userId = (Integer) request.getSession().getAttribute("userId");
 		try {
 			if (userId == null || userDAO.getUser(username).getId() != userId) {
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

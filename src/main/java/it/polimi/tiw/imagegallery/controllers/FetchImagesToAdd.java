@@ -44,6 +44,13 @@ public class FetchImagesToAdd extends HttpServlet {
 		String albumIdString = StringEscapeUtils.escapeJava(request.getParameter("albumId"));
 		int albumId;
 		
+		Integer userId = (Integer) request.getSession().getAttribute("userId");		
+		if (userId == null) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.getWriter().println("Missing user session");
+			return;
+		}
+		
 		try {
 			albumId = Integer.parseInt(albumIdString);
 		} catch (NumberFormatException e) {
@@ -52,7 +59,6 @@ public class FetchImagesToAdd extends HttpServlet {
 			return;
 		}
 		
-		int userId = (Integer) request.getSession().getAttribute("userId");
 		List<Image> images = null;
 		ImageDAO imageDAO = new ImageDAO(connection);
 		Album album = null;

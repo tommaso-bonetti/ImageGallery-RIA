@@ -38,6 +38,13 @@ public class AddToAlbum extends HttpServlet {
 		String targetImage = StringEscapeUtils.escapeJava(request.getParameter("targetImage"));
 		String targetAlbum = StringEscapeUtils.escapeJava(request.getParameter("targetAlbum"));
 		
+		Integer userId = (Integer) request.getSession().getAttribute("userId");		
+		if (userId == null) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.getWriter().println("Missing user session");
+			return;
+		}
+		
 		try {
 			if (targetImage == null || targetImage.isEmpty())
 				throw new Exception("Missing target image");
@@ -62,7 +69,6 @@ public class AddToAlbum extends HttpServlet {
 		}
 		
 		AlbumImagesDAO albumImagesDAO = new AlbumImagesDAO(connection);
-		int userId = (int) request.getSession().getAttribute("userId");
 		
 		try {
 			albumImagesDAO.addImageToAlbum(userId, targetImageId, targetAlbumId);
