@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import com.google.gson.Gson;
 
 import it.polimi.tiw.imagegallery.beans.Image;
@@ -35,8 +37,8 @@ public class FetchImage extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String imageIdString = request.getParameter("imageId");
-		String albumIdString = request.getParameter("albumId");
+		String imageIdString = StringEscapeUtils.escapeJava(request.getParameter("imageId"));
+		String albumIdString = StringEscapeUtils.escapeJava(request.getParameter("albumId"));
 		
 		int imageId;
 		int albumId;

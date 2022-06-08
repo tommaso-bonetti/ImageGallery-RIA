@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import it.polimi.tiw.imagegallery.dao.AlbumImagesDAO;
 import it.polimi.tiw.imagegallery.utils.ConnectionManager;
 
@@ -33,8 +35,8 @@ public class AddToAlbum extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String targetImage = request.getParameter("targetImage");
-		String targetAlbum = request.getParameter("targetAlbum");
+		String targetImage = StringEscapeUtils.escapeJava(request.getParameter("targetImage"));
+		String targetAlbum = StringEscapeUtils.escapeJava(request.getParameter("targetAlbum"));
 		
 		try {
 			if (targetImage == null || targetImage.isEmpty())

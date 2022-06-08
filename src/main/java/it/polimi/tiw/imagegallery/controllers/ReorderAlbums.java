@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -38,7 +40,7 @@ public class ReorderAlbums extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String order = request.getParameter("order");
+		String order = StringEscapeUtils.escapeJava(request.getParameter("order"));
 		List<Integer> albumOrder = new Gson().fromJson(order, new TypeToken<List<Integer>>(){}.getType());
 		
 		Integer userId = (Integer) request.getSession().getAttribute("userId");

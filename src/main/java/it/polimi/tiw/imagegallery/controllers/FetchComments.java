@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import com.google.gson.Gson;
 
 import it.polimi.tiw.imagegallery.beans.Comment;
@@ -36,7 +38,7 @@ public class FetchComments extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String imageIdString = request.getParameter("imageId");
+		String imageIdString = StringEscapeUtils.escapeJava(request.getParameter("imageId"));
 		int imageId;
 		
 		try {

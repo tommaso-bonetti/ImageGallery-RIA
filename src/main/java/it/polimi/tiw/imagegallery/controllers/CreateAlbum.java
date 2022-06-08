@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import it.polimi.tiw.imagegallery.dao.AlbumDAO;
 import it.polimi.tiw.imagegallery.dao.UserDAO;
 import it.polimi.tiw.imagegallery.utils.ConnectionManager;
@@ -35,8 +37,8 @@ public class CreateAlbum extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String username = request.getParameter("username");
-		String albumTitle = request.getParameter("albumTitle");
+		String username = StringEscapeUtils.escapeJava(request.getParameter("username"));
+		String albumTitle = StringEscapeUtils.escapeJava(request.getParameter("albumTitle"));
 		
 		try {
 			if (username == null || username.isEmpty())

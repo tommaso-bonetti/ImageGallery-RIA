@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import com.google.gson.Gson;
 
 import it.polimi.tiw.imagegallery.beans.Album;
@@ -36,8 +38,8 @@ public class FetchAlbumList extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String ownAlbums = request.getParameter("ownAlbums");
-		String albumIdString = request.getParameter("albumId");
+		String ownAlbums = StringEscapeUtils.escapeJava(request.getParameter("ownAlbums"));
+		String albumIdString = StringEscapeUtils.escapeJava(request.getParameter("albumId"));
 		
 		int currentUserId = (int) request.getSession().getAttribute("userId");
 		
