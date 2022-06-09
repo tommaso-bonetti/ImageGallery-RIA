@@ -15,8 +15,6 @@ public class UserDAO {
 	}
 	
 	public User checkCredentials(String username, String password) throws Exception, SQLException {
-		if (getUser(username) == null)
-			throw new Exception("Username does not exist, register to create a new account");
 		
 		String query = "SELECT userId, email, username FROM User WHERE username = ? AND password = ?";
 		try (PreparedStatement prepStatement = connection.prepareStatement(query)) {
@@ -24,7 +22,7 @@ public class UserDAO {
 			prepStatement.setString(2, password);
 			try (ResultSet res = prepStatement.executeQuery()) {
 				if (!res.isBeforeFirst())
-					throw new Exception("The password is incorrect");
+					return null;
 				else {
 					res.next();
 					User user = new User();
@@ -37,10 +35,12 @@ public class UserDAO {
 		}
 	}
 	
-	public User createUser(String email, String username, String password) throws SQLException {
+	public User createUser(String email, String username, String password) throws Exception, SQLException {
 		User res = null;
 		
-		if (getUser(username) == null)  {
+		if (getUser(username) != null)
+			throw new Exception("Username already exists");
+		else {
 			String query = "INSERT INTO User (email, username, password) VALUES (?, ?, ?)";
 			try (PreparedStatement prepStatement = connection.prepareStatement(query)) {
 				prepStatement.setString(1, email);

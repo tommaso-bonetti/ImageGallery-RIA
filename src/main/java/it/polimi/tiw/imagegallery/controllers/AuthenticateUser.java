@@ -56,7 +56,13 @@ public class AuthenticateUser extends HttpServlet {
 		User user = null;
 		
 		try {
+			if (userDAO.getUser(username) == null)
+				throw new Exception("Username does not exist, register to create a new account");
+			
 			user = userDAO.checkCredentials(username, password);
+			
+			if (user == null)
+				throw new Exception("The password is incorrect");
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.getWriter().println("Unable to check user credentials");

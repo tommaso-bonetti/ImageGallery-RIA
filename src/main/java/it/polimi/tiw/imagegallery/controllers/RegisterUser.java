@@ -108,18 +108,17 @@ public class RegisterUser extends HttpServlet {
 				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				response.getWriter().println("Unable to register new user");
 				return;
-			}
-			
-			if (user == null) {
+			} catch (Exception e) {
 				response.setStatus(HttpServletResponse.SC_CONFLICT);
 				response.getWriter().println("Username already exists");
-			} else {
-				request.getSession().setAttribute("userId", user.getId());
-				response.setStatus(HttpServletResponse.SC_OK);
-				response.setContentType("application/json");
-				response.setCharacterEncoding("UTF-8");
-				response.getWriter().println(user.getUsername());
+				return;
 			}
+			
+			request.getSession().setAttribute("userId", user.getId());
+			response.setStatus(HttpServletResponse.SC_OK);
+			response.setContentType("application/json");
+			response.setCharacterEncoding("UTF-8");
+			response.getWriter().println(user.getUsername());
 		}
 	}
 
