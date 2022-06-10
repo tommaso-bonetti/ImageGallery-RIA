@@ -749,8 +749,8 @@
 					let message = x.responseText;
 					
 					if (x.status == 200) {
-						createAlbumAlert.displaySuccess('Album created successfully!');
-						setTimeout(() => createAlbumAlert.hide(), 2000);
+						self.createAlbumAlert.displaySuccess('Album created successfully!');
+						setTimeout(() => self.createAlbumAlert.hide(), 2000);
 						
 						let albumId = parseInt(message);
 						ownAlbums.load();
@@ -758,6 +758,7 @@
 						sessionStorage.setItem('currentAlbum', albumId);
 					} else {
 						self.createAlbumAlert.displayError(message);
+						setTimeout(() => self.createAlbumAlert.hide(), 2000);
 					}
 				}
 			});
