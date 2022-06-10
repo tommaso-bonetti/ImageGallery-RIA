@@ -273,8 +273,6 @@
 				let anchor = document.createElement('a');
 				anchor.appendChild(image.imgElement);
 				anchor.href = '#albumDetails';
-				anchor.setAttribute('imageId', image.id);
-				anchor.addEventListener('click', e => imageDetails.load(e.target.closest('a').getAttribute('imageId'), this.albumId), false);
 				
 				imageContainer.appendChild(anchor);
 				gridItem.appendChild(imageContainer);
@@ -284,8 +282,26 @@
 				imageTitle.appendChild(document.createTextNode(image.title))
 				gridItem.appendChild(imageTitle);
 				
-				//gridItem.setAttribute('imageId', image.id);
-				//gridItem.addEventListener('mouseover', e => imageDetails.load(e.target.getAttribute('imageId'), this.albumId), false);
+				gridItem.setAttribute('imageId', image.id);
+				
+				gridItem.addEventListener('click', e => {
+					imageDetails.load(e.target.closest('div.grid-item').getAttribute('imageId'), this.albumId)
+				}, false);
+				
+				let timeout;
+				
+				gridItem.addEventListener('mouseover', e => {
+					if (timeout != null)
+						clearTimeout(timeout);
+					timeout = setTimeout(() => {
+						imageDetails.load(e.target.closest('div.grid-item').getAttribute('imageId'), this.albumId)
+					}, 500);
+				}, false);
+				
+				gridItem.addEventListener('mouseout', e => {
+					if (timeout != null)
+						clearTimeout(timeout);
+				}, false);
 				
 				this.grid.appendChild(gridItem);
 			});
@@ -315,6 +331,7 @@
 	
 	function ImagesToAdd() {
 		this.gridContainer = document.getElementById('imagesToAdd');
+		this.modalContent = document.getElementById('imagesToAddContent');
 		this.grid = document.getElementById('imagesToAddGrid');
 		this.alertContainer = new AlertContainer('imagesToAddAlert');
 		
@@ -326,6 +343,8 @@
 		
 		this.gridContainer.style.display = 'none';
 		
+		this.gridContainer.addEventListener('click', e => this.hide(), false);
+		this.modalContent.addEventListener('click', e => e.stopPropagation(), false);
 		this.closeButton.addEventListener('click', e => this.hide());
 		
 		this.load = function (albumId) {
@@ -466,7 +485,9 @@
 		
 		this.modal.style.display = 'none';
 		
-		this.closeButton.addEventListener('click', e => this.hide());
+		this.modal.addEventListener('click', e => this.hide(), false);
+		this.modalContent.addEventListener('click', e => e.stopPropagation(), false);
+		this.closeButton.addEventListener('click', e => this.hide(), false);
 		
 		this.load = function (imageId, albumId) {			
 			this.currentAlbum = albumId;
