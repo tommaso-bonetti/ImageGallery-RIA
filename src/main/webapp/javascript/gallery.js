@@ -1,6 +1,6 @@
 {
 	// Page components
-	let welcomeMessage, ownAlbums, otherAlbums, albumImages, imagesToAdd, imageDetails;
+	let welcomeMessage, ownAlbums, otherAlbums, createAlbum, albumImages, imagesToAdd, imageDetails;
 	let pageOrchestrator = new PageOrchestrator();
 	
 	window.addEventListener('load', () => {
@@ -12,15 +12,17 @@
 		}
 	}, false);
 	
-	function WelcomeMessage(_username, container) {
+	function WelcomeMessage(_username, _container) {
 		this.username = _username;
+		this.container = document.getElementById(_container);
+		
 		this.display = function() {
-			container.textContent = this.username;
+			this.container.textContent = this.username;
 		}
 	};
 	
 	function AlertContainer(_container) {
-		this.container = _container;
+		this.container = document.getElementById(_container);
 		
 		this.display = message => {
 			this.container.textContent = message;
@@ -46,8 +48,8 @@
 	}
 	
 	function AlbumList(_tableContainer, _table, _alertContainer, _ownAlbums) {
-		this.tableContainer = _tableContainer;
-		this.table = _table;
+		this.tableContainer = document.getElementById(_tableContainer);
+		this.table = document.getElementById(_table);
 		this.alertContainer = new AlertContainer(_alertContainer);
 		this.ownAlbums = _ownAlbums;
 		this.reorderForm = document.getElementById('reorderAlbums');
@@ -169,10 +171,10 @@
 		};
 	};
 	
-	function Gallery(_gridContainer, _grid, _alertContainer) {
-		this.gridContainer = _gridContainer;
-		this.grid = _grid;
-		this.alertContainer = new AlertContainer(_alertContainer);
+	function AlbumImages() {
+		this.gridContainer = document.getElementById('albumDetails');
+		this.grid = document.getElementById('albumImagesGrid');
+		this.alertContainer = new AlertContainer('albumImagesAlert');
 		
 		this.titleContainer = document.getElementById('albumTitle');
 		this.creationDataContainer = document.getElementById('creationData');
@@ -189,10 +191,10 @@
 		this.gridContainer.style.visibility = 'hidden';
 		
 		this.showPrevious.addEventListener('click', e => {
-			if (this.page > 0) {
+			if (this.page > 1) {
 				this.page--;
-				this.showPrevious.style.visibility = 'visible';
-				if (this.page == 0)
+				this.showNext.style.visibility = 'visible';
+				if (this.page == 1)
 					e.target.style.visibility = 'hidden';
 
 				this.populate();
@@ -240,6 +242,12 @@
 							self.alertContainer.display('No images yet!');
 						} else {
 							self.images = album.images;
+							self.images.forEach(image => {
+								let img = document.createElement('img');
+								img.src = '/ImageGallery-RIA' + image.filePath;
+								img.classList.add('image');
+								image.imgElement = img;
+							});
 							self.showNext.style.visibility = (self.images.length > 5) ?  'visible' : 'hidden';
 							self.page = 1;
 							self.populate();
@@ -263,10 +271,7 @@
 				imageContainer.classList.add('image-container-grid');
 				
 				let anchor = document.createElement('a');
-				let img = document.createElement('img');
-				img.src = '/ImageGallery-RIA' + image.filePath;
-				img.classList.add('image');
-				anchor.appendChild(img);
+				anchor.appendChild(image.imgElement);
 				anchor.href = '#albumDetails';
 				anchor.setAttribute('imageId', image.id);
 				anchor.addEventListener('click', e => imageDetails.load(e.target.closest('a').getAttribute('imageId'), this.albumId), false);
@@ -278,6 +283,9 @@
 				imageTitle.classList.add('image-title');
 				imageTitle.appendChild(document.createTextNode(image.title))
 				gridItem.appendChild(imageTitle);
+				
+				gridItem.setAttribute('imageId', image.id);
+				gridItem.addEventListener('mouseover', e => imageDetails.load(e.target.getAttribute('imageId'), this.albumId), false);
 				
 				this.grid.appendChild(gridItem);
 			});
@@ -305,10 +313,10 @@
 		};
 	};
 	
-	function MultiRowGallery(_gridContainer, _grid, _alertContainer) {
-		this.gridContainer = _gridContainer;
-		this.grid = _grid;
-		this.alertContainer = new AlertContainer(_alertContainer);
+	function ImagesToAdd() {
+		this.gridContainer = document.getElementById('imagesToAdd');
+		this.grid = document.getElementById('imagesToAddGrid');
+		this.alertContainer = new AlertContainer('imagesToAddAlert');
 		
 		this.titleContainer = document.getElementById('imagesToAddTitle');
 		this.closeButton = document.getElementById('closeAddImagesModal');
@@ -318,7 +326,7 @@
 		
 		this.gridContainer.style.display = 'none';
 		
-		this.closeButton.addEventListener('click', e => this.gridContainer.style.display = 'none');
+		this.closeButton.addEventListener('click', e => this.hide());
 		
 		this.load = function (albumId) {
 			let self = this;
@@ -434,14 +442,18 @@
 			this.album = null;
 			this.images = null;
 		};
+		
+		this.hide = function () {
+			this.gridContainer.style.display = 'none';
+		};
 	};
 	
 	function ImageDetails(_modal, _modalContent, _commentList, _albumSelect, _alertContainer) {
-		this.modal = _modal;
-		this.modalContent = _modalContent;
-		this.commentList = new CommentList(_commentList);
-		this.albumSelect = new AlbumSelect(_albumSelect);
-		this.alertContainer = new AlertContainer(_alertContainer);
+		this.modal = document.getElementById('selectedImageWrapper');
+		this.modalContent = document.getElementById('selectedImage');
+		this.commentList = new CommentList();
+		this.albumSelect = new AlbumSelect();
+		this.alertContainer = new AlertContainer('selImgAlert');
 		
 		this.imageContainer = document.getElementById('fullSizeImage');
 		this.titleContainer = document.getElementById('selImgTitle');
@@ -454,9 +466,9 @@
 		
 		this.modal.style.display = 'none';
 		
-		this.closeButton.addEventListener('click', e => this.modal.style.display = 'none');
+		this.closeButton.addEventListener('click', e => this.hide());
 		
-		this.load = function (imageId, albumId) {
+		this.load = function (imageId, albumId) {			
 			this.currentAlbum = albumId;
 			let self = this;
 			
@@ -493,6 +505,7 @@
 		this.clear = function () {
 			this.modal.style.display = 'none';
 			this.imageContainer.src = '';
+			this.alertContainer.hide();
 			
 			this.titleContainer.innerHTML = '';
 			this.descContainer.innerHTML = '';
@@ -503,14 +516,18 @@
 			this.commentList.clear();
 			this.albumSelect.clear();
 		};
+		
+		this.hide = function () {
+			this.modal.style.display = 'none';
+		};
 	};
 	
-	function CommentList(_commentList) {
-		this.commentList = _commentList;
+	function CommentList() {
+		this.commentList = document.getElementById('commentList');
 		this.wrapper = document.getElementById('commentsWrapper');
-		this.alertContainer = new AlertContainer(document.getElementById('commentsAlert'));
+		this.alertContainer = new AlertContainer('commentsAlert');
 		this.form = document.getElementById('commentForm');
-		this.formAlertContainer = new AlertContainer(document.getElementById('commentFormError'));
+		this.formAlertContainer = new AlertContainer('commentFormError');
 		
 		this.imageId = null;
 		this.comments = null;
@@ -621,12 +638,11 @@
 		};
 	};
 	
-	function AlbumSelect(_albumSelect) {
-		this.albumSelect = _albumSelect;
+	function AlbumSelect() {
 		this.form = document.getElementById('addToAlbumForm');
 		this.select = document.getElementById('targetAlbum');
 		this.submit = document.getElementById('addToAlbumSubmit');
-		this.alertContainer = new AlertContainer(document.getElementById('addToAlbumAlert'));
+		this.alertContainer = new AlertContainer('addToAlbumAlert');
 		
 		this.albumId = null;
 		this.imageId = null;
@@ -660,7 +676,7 @@
 					if (x.status == 200) {
 						self.albums = JSON.parse(message);
 						self.populate();
-						self.albumSelect.style.display = 'block';
+						self.form.style.display = 'block';
 					} else {
 						self.alertContainer.displayError(x.responseText);
 					}
@@ -687,12 +703,44 @@
 		};
 		
 		this.clear = function () {
-			this.albumSelect.style.display = 'none';
+			this.form.style.display = 'none';
 			this.select.innerHTML = '';
 			this.alertContainer.hide();
 			
 			this.albums = null;
 		};
+	};
+	
+	function CreateAlbum() {
+		this.createAlbumForm = document.getElementById('createAlbum');
+		this.createAlbumAlert = new AlertContainer('createAlbumAlert');
+		this.submit = document.getElementById('createAlbumSubmit');
+		this.usernameField = document.getElementById('createAlbumUsername');
+		
+		this.createAlbumAlert.hide();
+		
+		this.submit.addEventListener('click', e => {
+			this.usernameField.value = sessionStorage.getItem('username');
+			
+			let self = this;			
+			sendAsync('POST', 'CreateAlbum', createAlbumForm, function (x) {
+				if (x.readyState == XMLHttpRequest.DONE) {
+					let message = x.responseText;
+					
+					if (x.status == 200) {
+						createAlbumAlert.displaySuccess('Album created successfully!');
+						setTimeout(() => createAlbumAlert.hide(), 2000);
+						
+						let albumId = parseInt(message);
+						ownAlbums.load();
+						albumImages.load(albumId);
+						sessionStorage.setItem('currentAlbum', albumId);
+					} else {
+						self.createAlbumAlert.displayError(message);
+					}
+				}
+			});
+		});
 	};
 	
 	function PageOrchestrator() {
@@ -703,70 +751,20 @@
 				sendAsync('GET', 'Logout', null, () => window.location.href = 'login.html');
 			});
 			
-			// Initialize the album creation form
-			let createAlbumForm = document.getElementById('createAlbum');
-			let createAlbumAlert = new AlertContainer(document.getElementById('createAlbumAlert'));
-			createAlbumAlert.hide();
-			document.getElementById('createAlbumSubmit').addEventListener('click', e => {
-				document.getElementById('createAlbumUsername').value = sessionStorage.getItem('username');
-				sendAsync('POST', 'CreateAlbum', createAlbumForm, function (x) {
-					if (x.readyState == XMLHttpRequest.DONE) {
-						let message = x.responseText;
-						
-						if (x.status == 200) {
-							createAlbumAlert.displaySuccess('Album created successfully!');
-							setTimeout(() => createAlbumAlert.hide(), 2000);
-							
-							let albumId = parseInt(message);
-							ownAlbums.load();
-							albumImages.load(albumId);
-							sessionStorage.setItem('currentAlbum', albumId);
-						} else {
-							createAlbumAlert.displayError(message);
-						}
-					}
-				});
-			});
-			
 			// Initialize the main page components
-			welcomeMessage = new WelcomeMessage(
-					sessionStorage.getItem('username'),
-					document.getElementById('welcomeUsername')
-			);
+			welcomeMessage = new WelcomeMessage(sessionStorage.getItem('username'), 'welcomeUsername');
 			
-			ownAlbums = new AlbumList(
-					document.getElementById('ownAlbumsContainer'),
-					document.getElementById('ownAlbums'),
-					document.getElementById('ownAlbumsAlert'),
-					true
-			);
+			ownAlbums = new AlbumList('ownAlbumsContainer', 'ownAlbums', 'ownAlbumsAlert', true);
 			
-			otherAlbums = new AlbumList(
-					document.getElementById('otherAlbumsContainer'),
-					document.getElementById('otherAlbums'),
-					document.getElementById('otherAlbumsAlert'),
-					false
-			);
+			otherAlbums = new AlbumList('otherAlbumsContainer', 'otherAlbums', 'otherAlbumsAlert', false);
 			
-			albumImages = new Gallery(
-					document.getElementById('albumDetails'),
-					document.getElementById('albumImagesGrid'),
-					document.getElementById('albumImagesAlert')
-			);
+			createAlbum = new CreateAlbum();
 			
-			imagesToAdd = new MultiRowGallery(
-					document.getElementById('imagesToAdd'),
-					document.getElementById('imagesToAddGrid'),
-					document.getElementById('imagesToAddAlert')
-			);
+			albumImages = new AlbumImages();
 			
-			imageDetails = new ImageDetails(
-					document.getElementById('selectedImageWrapper'),
-					document.getElementById('selectedImage'),
-					document.getElementById('commentList'),
-					document.getElementById('addToAlbumForm'),
-					document.getElementById('selImgAlert')
-			);
+			imagesToAdd = new ImagesToAdd();
+			
+			imageDetails = new ImageDetails();
 		};
 		
 		this.refresh = function () {
