@@ -161,7 +161,6 @@ public class AlbumDAO {
 				
 				prepStatement.setInt(1, i);
 				prepStatement.setInt(2, order.get(i));
-				prepStatement.setInt(3, userId);
 				prepStatement.executeUpdate();
 			}
 			

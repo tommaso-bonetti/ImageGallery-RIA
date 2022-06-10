@@ -284,8 +284,8 @@
 				imageTitle.appendChild(document.createTextNode(image.title))
 				gridItem.appendChild(imageTitle);
 				
-				gridItem.setAttribute('imageId', image.id);
-				gridItem.addEventListener('mouseover', e => imageDetails.load(e.target.getAttribute('imageId'), this.albumId), false);
+				//gridItem.setAttribute('imageId', image.id);
+				//gridItem.addEventListener('mouseover', e => imageDetails.load(e.target.getAttribute('imageId'), this.albumId), false);
 				
 				this.grid.appendChild(gridItem);
 			});
@@ -448,7 +448,7 @@
 		};
 	};
 	
-	function ImageDetails(_modal, _modalContent, _commentList, _albumSelect, _alertContainer) {
+	function ImageDetails() {
 		this.modal = document.getElementById('selectedImageWrapper');
 		this.modalContent = document.getElementById('selectedImage');
 		this.commentList = new CommentList();
