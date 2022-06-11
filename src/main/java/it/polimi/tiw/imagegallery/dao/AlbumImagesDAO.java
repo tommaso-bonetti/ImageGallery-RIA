@@ -12,7 +12,7 @@ public class AlbumImagesDAO {
 		this.connection = connection;
 	}
 	
-	public void addImageToAlbum(int userId, int imageId, int albumId) throws SQLException {		
+	public void addImageToAlbum(int imageId, int albumId) throws SQLException {		
 		String query = "INSERT INTO AlbumImages (imageId, albumId) VALUES (?, ?)";
 		try (PreparedStatement prepStatement = connection.prepareStatement(query)) {
 			prepStatement.setInt(1, imageId);

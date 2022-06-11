@@ -66,11 +66,6 @@ public class FetchAlbum extends HttpServlet {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.getWriter().println("Error in retrieving images from the database");
 			return;
-		} catch (Exception e) {
-			e.printStackTrace();
-			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			response.getWriter().println("Invalid page selection");
-			return;
 		}
 		
 		if (album == null) {
