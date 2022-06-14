@@ -12,7 +12,10 @@ public class AlbumImagesDAO {
 		this.connection = connection;
 	}
 	
-	public void addImageToAlbum(int imageId, int albumId) throws SQLException {		
+	public void addImageToAlbum(int imageId, int albumId) throws Exception {
+		if (checkTupleExistence(imageId, albumId))
+			throw new Exception("The selected album already contains this image");
+		
 		String query = "INSERT INTO AlbumImages (imageId, albumId) VALUES (?, ?)";
 		try (PreparedStatement prepStatement = connection.prepareStatement(query)) {
 			prepStatement.setInt(1, imageId);
@@ -63,6 +66,19 @@ public class AlbumImagesDAO {
 		try (PreparedStatement prepStatement = connection.prepareStatement(query)) {
 			prepStatement.setInt(1, imageId);
 			prepStatement.setInt(2, userId);
+			prepStatement.executeQuery();
+			try (ResultSet res = prepStatement.executeQuery()) {
+				if (!res.isBeforeFirst()) return false;
+				return true;
+			}
+		}
+	}
+	
+	private boolean checkTupleExistence(int imageId, int albumId) throws SQLException {
+		String query = "SELECT * FROM AlbumImages WHERE albumId = ? AND imageId = ?";
+		try (PreparedStatement prepStatement = connection.prepareStatement(query)) {
+			prepStatement.setInt(1, albumId);
+			prepStatement.setInt(2, imageId);
 			prepStatement.executeQuery();
 			try (ResultSet res = prepStatement.executeQuery()) {
 				if (!res.isBeforeFirst()) return false;
