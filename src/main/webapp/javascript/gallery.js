@@ -161,7 +161,7 @@
 				anchor.addEventListener('click', e => {
 					let albumId = e.target.getAttribute('albumId');
 					sessionStorage.setItem('currentAlbum', albumId);
-					albumImages.load(albumId);
+					albumImages.load(albumId, this.ownAlbums);
 				}, false);
 				details.appendChild(anchor);
 				row.appendChild(details);
@@ -183,6 +183,8 @@
 		this.showPrevious = document.getElementById('showPrev');
 		this.showNext = document.getElementById('showNext');
 		this.addImages = document.getElementById('addImages');
+		
+		this.ownAlbum = null;
 		
 		this.albumId = null;
 		this.images = null;
@@ -214,7 +216,9 @@
 		
 		this.addImages.addEventListener('click', e => imagesToAdd.load(e.target.getAttribute('albumId')), false);
 		
-		this.load = function (albumId) {
+		this.load = function (albumId, isOwnAlbum) {
+			this.ownAlbum = isOwnAlbum;
+			
 			let self = this;
 			
 			sendAsync('GET', 'FetchAlbum?albumId=' + albumId, null, function (x) {
@@ -286,7 +290,7 @@
 				gridItem.setAttribute('imageId', image.id);
 				
 				gridItem.addEventListener('click', e => {
-					imageDetails.load(e.target.closest('div.grid-item').getAttribute('imageId'), this.albumId)
+					imageDetails.load(e.target.closest('div.grid-item').getAttribute('imageId'), this.albumId, this.ownAlbum)
 				}, false);
 				
 				let timeout;
@@ -295,7 +299,7 @@
 					if (timeout != null)
 						clearTimeout(timeout);
 					timeout = setTimeout(() => {
-						imageDetails.load(e.target.closest('div.grid-item').getAttribute('imageId'), this.albumId)
+						imageDetails.load(e.target.closest('div.grid-item').getAttribute('imageId'), this.albumId, this.ownAlbum)
 					}, 500);
 				}, false);
 				
@@ -430,7 +434,7 @@
 							
 							switch (x.status) {
 								case 200: // ok
-									albumImages.load(parseInt(message));
+									albumImages.load(parseInt(message), self.ownAlbums);
 									self.load(parseInt(message));
 									break;
 								case 400:	// bad request
@@ -481,6 +485,7 @@
 		this.dateContainer = document.getElementById('selImgDate');
 		this.closeButton = document.getElementById('closeModal');
 		
+		this.ownAlbum = null;
 		this.currentAlbum = null;
 		this.image = null;
 		
@@ -490,8 +495,9 @@
 		this.modalContent.addEventListener('click', e => e.stopPropagation(), false);
 		this.closeButton.addEventListener('click', e => this.hide(), false);
 		
-		this.load = function (imageId, albumId) {			
+		this.load = function (imageId, albumId, isOwnAlbum) {			
 			this.currentAlbum = albumId;
+			this.ownAlbum = isOwnAlbum;
 			let self = this;
 			
 			sendAsync('GET', 'FetchImage?imageId=' + imageId + "&albumId=" + albumId, null, function (x) {				
@@ -514,7 +520,7 @@
 		
 		this.populate = function () {
 			this.commentList.load(this.image.id);
-			this.albumSelect.load(this.image.id, this.currentAlbum);
+			if (this.ownAlbum) this.albumSelect.load(this.image.id, this.currentAlbum);
 			
 			this.imageContainer.style.display = 'block';
 			this.imageContainer.src = '/ImageGallery-RIA' + this.image.filePath;
@@ -677,7 +683,7 @@
 			sendAsync('POST', 'AddToAlbum', this.form, function (x) {
 				if (x.readyState == XMLHttpRequest.DONE) {				
 					if (x.status == 200)
-						imageDetails.load(self.imageId, self.albumId);
+						imageDetails.load(self.imageId, self.albumId, true);
 					else
 						self.alertContainer.displayError(x.responseText);
 				}
@@ -754,7 +760,7 @@
 						
 						let albumId = parseInt(message);
 						ownAlbums.load();
-						albumImages.load(albumId);
+						albumImages.load(albumId, true);
 						sessionStorage.setItem('currentAlbum', albumId);
 					} else {
 						self.createAlbumAlert.displayError(message);
