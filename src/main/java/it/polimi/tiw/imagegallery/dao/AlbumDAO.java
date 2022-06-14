@@ -173,6 +173,19 @@ public class AlbumDAO {
 		
 		connection.setAutoCommit(true);
 	}
+
+	public boolean hasAlbumWithTitle(int userId, String albumTitle) throws SQLException {
+		String query = "SELECT * FROM Album WHERE ownerID = ? AND title = ?";
+		try (PreparedStatement prepStatement = connection.prepareStatement(query)) {
+			prepStatement.setInt(1, userId);
+			prepStatement.setString(2, albumTitle);
+			try (ResultSet res = prepStatement.executeQuery()) {
+				if (!res.isBeforeFirst()) return false;
+				res.next();
+				return true;
+			}
+		}
+	}
 	
 	private int albumIdByTitle(String title) throws SQLException {
 		String query = "SELECT albumId FROM Album WHERE title = ?";

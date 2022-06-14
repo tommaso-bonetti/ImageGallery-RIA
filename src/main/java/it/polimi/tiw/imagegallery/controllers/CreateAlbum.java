@@ -75,6 +75,11 @@ public class CreateAlbum extends HttpServlet {
 		AlbumDAO albumDAO = new AlbumDAO(connection);
 		
 		try {
+			if (albumDAO.hasAlbumWithTitle(userId, albumTitle)) {
+				response.setStatus(HttpServletResponse.SC_CONFLICT);
+				response.getWriter().println("You already have an album with this title");
+				return;
+			}
 			albumId = albumDAO.createAlbum(userId, albumTitle);
 			if (albumId < 0) throw new Exception();
 		} catch (Exception e) {

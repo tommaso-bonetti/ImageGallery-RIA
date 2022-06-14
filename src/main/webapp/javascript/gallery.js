@@ -253,6 +253,7 @@
 							self.populate();
 						}
 					} else {
+						self.creationDataContainer.style.display = 'none';
 						self.alertContainer.displayError(message);
 					}
 				}
@@ -744,7 +745,7 @@
 			this.usernameField.value = sessionStorage.getItem('username');
 			
 			let self = this;			
-			sendAsync('POST', 'CreateAlbum', createAlbumForm, function (x) {
+			sendAsync('POST', 'CreateAlbum', this.createAlbumForm, function (x) {
 				if (x.readyState == XMLHttpRequest.DONE) {
 					let message = x.responseText;
 					
@@ -758,7 +759,7 @@
 						sessionStorage.setItem('currentAlbum', albumId);
 					} else {
 						self.createAlbumAlert.displayError(message);
-						setTimeout(() => self.createAlbumAlert.hide(), 2000);
+						setTimeout(() => self.createAlbumAlert.hide(), 5000);
 					}
 				}
 			});
