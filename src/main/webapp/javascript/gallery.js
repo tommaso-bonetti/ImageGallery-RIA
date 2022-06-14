@@ -61,7 +61,7 @@
 			
 			this.saveReorder.addEventListener('click', e => {
 				let order = Array.from(this.table.children).map(tr => tr.getAttribute('albumId'));
-				this.reorderForm.elements['order'].value = '[' + order + ']';
+				this.reorderForm.querySelector('#order').value = '[' + order + ']';
 				
 				let self = this;
 				sendAsync('POST', 'ReorderAlbums', this.reorderForm, function (x) {
@@ -77,11 +77,11 @@
 							case 401: // unauthorized
 							case 500: // internal server error
 								self.alertContainer.displayError(message);
-								setTimeout(() => self.alertContainer.hide(), 2000);
+								setTimeout(() => self.alertContainer.hide(), 5000);
 								break;
 							default:
 								self.alertContainer.displayError('Unexpected error');
-								setTimeout(() => self.alertContainer.hide(), 2000);
+								setTimeout(() => self.alertContainer.hide(), 5000);
 						}
 						
 						self.saveReorder.parentElement.style.display = 'none';
@@ -560,11 +560,10 @@
 			let self = this;
 			this.formAlertContainer.hide();
 			
-			let comment = self.form.elements['commentBody'].value;
+			let comment = self.form.querySelector('#commentBody').value;
 			
 			if (comment == null || comment.length == 0) {
 				self.formAlertContainer.displayError('Empty comment body');
-				console.log('Validity check failed - comment');
 				return;
 			}
 				
