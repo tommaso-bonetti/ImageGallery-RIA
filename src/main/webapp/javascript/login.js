@@ -67,7 +67,7 @@
 			
 			if (errors.length > 0) {
 				update(errors);
-				console.log('Validity check failed - registration');
+				form.reset();
 				return;
 			}
 	
@@ -82,7 +82,8 @@
             case 400: // bad request
               update(JSON.parse(message));
               break;
-            case 409, 500: // conflict, internal server error
+            case 409: // conflict
+            case 500: // internal server error
               update([message]);
               break;
             default:
