@@ -300,7 +300,7 @@
 						clearTimeout(timeout);
 					timeout = setTimeout(() => {
 						imageDetails.load(e.target.closest('div.grid-item').getAttribute('imageId'), this.albumId, this.ownAlbum)
-					}, 500);
+					}, 750);
 				}, false);
 				
 				gridItem.addEventListener('mouseout', e => {
